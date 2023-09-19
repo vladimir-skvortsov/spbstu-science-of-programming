@@ -85,7 +85,31 @@ class Calculator {
 };
 
 int main() {
+  Calculator calc;
+
+  double init_number;
+  std::cout << "Enter a number: ";
+  std::cin >> init_number;
+  calc.set(init_number);
+
+  while (true) {
+    std::string operation;
+    std::cout << "Enter an operation: ";
+    std::cin >> operation;
+
+    double value;
+    std::cout << "Enter the second number: ";
+    std::cin >> value;
+
+    calc.eval(operation, value);
+
+    std::cout << "Result is " << calc.get() << std::endl;
+    std::cout << std::endl;
+  }
+
+
   std::cout << "Calculator" << std::endl;
+
 
   return 0;
 };
