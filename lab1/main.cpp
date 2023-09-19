@@ -30,6 +30,38 @@ std::map<std::string, operation_func> load_plugins() {
   // TODO: return a value
 };
 
+class Calculator {
+  private:
+    double value;
+
+  public:
+    Calculator(): value(0) {};
+
+    void set(double value) {
+      this->value = value;
+    };
+
+    double get() {
+      return this->value;
+    };
+
+    void add(double value) {
+      this->value += value;
+    };
+
+    void subtract(double value) {
+      this->value -= value;
+    };
+
+    void multiply(double value) {
+      this->value *= value;
+    };
+
+    void divide(double value) {
+      this->value /= value;
+    };
+};
+
 int main() {
   std::cout << "Calculator" << std::endl;
 
