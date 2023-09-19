@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <filesystem>
+#include <dlfcn.h>
 
 namespace fs = std::filesystem;
 
@@ -18,21 +19,15 @@ std::vector<std::string> dir_stat(std::string path) {
   return files;
 };
 
-// TODO: change this mystery type
-using operation_func = int;
-std::map<std::string, operation_func> load_plugins() {
-  std::vector<std::string> plugin_names = dir_stat("./plugins");
-
-  for (const auto& plugin_name : plugin_names) {
-    std::cout << plugin_name << std::endl;
-  }
-
-  // TODO: return a value
-};
-
 class Calculator {
   private:
     double value;
+    std::map<std::string, int(*)()> plugins;
+
+    std::string get_plugin_name(std::string path) {
+      fs::path fs_path = path;
+      return fs_path.stem().string();
+    };
 
   public:
     Calculator(): value(0) {};
@@ -60,12 +55,37 @@ class Calculator {
     void divide(double value) {
       this->value /= value;
     };
+
+    void eval(std::string operation, double value) {
+      if (operation == "+") {
+        this->add(value);
+      } else if (operation == "-") {
+        this->subtract(value);
+      } else if (operation == "*") {
+        this->multiply(value);
+      } else if (operation == "/") {
+        this->divide(value);
+      }
+    };
+
+    void add_plugin(std::string plugin_path) {
+      void* handle = dlopen(plugin_path.c_str(), RTLD_NOW);
+
+      if (handle) {
+        void* functionPtr = dlsym(handle, "operation");
+
+        if (functionPtr) {
+          std::string operation = this->get_plugin_name(plugin_path);
+          this->plugins[operation] = (int(*)())functionPtr;
+        }
+
+        dlclose(handle);
+      }
+    }
 };
 
 int main() {
   std::cout << "Calculator" << std::endl;
-
-  load_plugins();
 
   return 0;
 };
