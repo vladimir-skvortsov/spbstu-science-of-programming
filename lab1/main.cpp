@@ -94,8 +94,12 @@ int main() {
 
   while (true) {
     std::string operation;
-    std::cout << "Enter an operation: ";
+    std::cout << "Enter an operation (+, -, *, /, x (exit)): ";
     std::cin >> operation;
+
+    if (operation == "x") {
+      break;
+    }
 
     double value;
     std::cout << "Enter the second number: ";
@@ -106,10 +110,6 @@ int main() {
     std::cout << "Result is " << calc.get() << std::endl;
     std::cout << std::endl;
   }
-
-
-  std::cout << "Calculator" << std::endl;
-
 
   return 0;
 };
