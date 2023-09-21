@@ -19,15 +19,22 @@ std::vector<std::string> dir_stat(std::string path) {
   return files;
 };
 
+std::vector<std::string> plugin_paths_get(std::string dir_path) {
+  std::vector<std::string> files = {};
+
+  for (const auto& entry : fs::directory_iterator(dir_path)) {
+    if (fs::is_regular_file(entry) && entry.path().extension() == ".dylib") {
+      files.push_back(entry.path());
+    }
+  }
+
+  return files;
+};
+
 class Calculator {
   private:
     double value;
     std::map<std::string, int(*)()> plugins;
-
-    std::string get_plugin_name(std::string path) {
-      fs::path fs_path = path;
-      return fs_path.stem().string();
-    };
 
   public:
     Calculator(): value(0) {};
@@ -65,6 +72,8 @@ class Calculator {
         this->multiply(value);
       } else if (operation == "/") {
         this->divide(value);
+      } else if (this->plugins[operation]) {
+        // this->value = this->plugins[operation](this->value, value);
       }
     };
 
@@ -72,11 +81,15 @@ class Calculator {
       void* handle = dlopen(plugin_path.c_str(), RTLD_NOW);
 
       if (handle) {
-        void* functionPtr = dlsym(handle, "operation");
+        void* func = dlsym(handle, "func");
+        void* sym = dlsym(handle, "sym");
+          std::cout << "Adding plugin: " << sym << std::endl;
 
-        if (functionPtr) {
-          std::string operation = this->get_plugin_name(plugin_path);
-          this->plugins[operation] = (int(*)())functionPtr;
+        if (func && sym) {
+          char* sym_ptr = reinterpret_cast<char*>(sym);
+          std::string sym_str = sym_ptr;
+          std::cout << sym_str << std::endl;
+          this->plugins[sym_str] = (int(*)())func;
         }
 
         dlclose(handle);
@@ -86,6 +99,11 @@ class Calculator {
 
 int main() {
   Calculator calc;
+
+  std::vector<std::string> plugins = plugin_paths_get("./plugins");
+  for (const auto& plugin : plugins) {
+    calc.add_plugin(plugin);
+  }
 
   double init_number;
   std::cout << "Enter a number: ";
