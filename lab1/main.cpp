@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <dlfcn.h>
 
+using eval_type = double (*)(double, double);
 namespace fs = std::filesystem;
 
 std::vector<std::string> dir_stat(std::string path) {
@@ -34,7 +35,8 @@ std::vector<std::string> plugin_paths_get(std::string dir_path) {
 class Calculator {
   private:
     double value;
-    std::map<std::string, int(*)()> plugins;
+    std::map<std::string, eval_type> plugins;
+    std::vector<void*> plugin_handlers;
 
   public:
     Calculator(): value(0) {};
@@ -73,28 +75,41 @@ class Calculator {
       } else if (operation == "/") {
         this->divide(value);
       } else if (this->plugins[operation]) {
-        // this->value = this->plugins[operation](this->value, value);
+        this->value = this->plugins[operation](this->value, value);
       }
     };
 
     void add_plugin(std::string plugin_path) {
-      void* handle = dlopen(plugin_path.c_str(), RTLD_NOW);
+      void* handler = dlopen(plugin_path.c_str(), RTLD_NOW);
 
-      if (handle) {
-        void* func = dlsym(handle, "func");
-        void* sym = dlsym(handle, "sym");
-          std::cout << "Adding plugin: " << sym << std::endl;
-
-        if (func && sym) {
-          char* sym_ptr = reinterpret_cast<char*>(sym);
-          std::string sym_str = sym_ptr;
-          std::cout << sym_str << std::endl;
-          this->plugins[sym_str] = (int(*)())func;
-        }
-
-        dlclose(handle);
+      if (!handler) {
+        std::cout << "No plugin at " << plugin_path << std::endl;
+        exit(1);
       }
-    }
+
+      void* arity_ptr = dlsym(handler, "arity");
+      void* sym_ptr = dlsym(handler, "sym");
+      void* eval_ptr = dlsym(handler, "eval");
+      char* error = dlerror();
+
+      if (error != nullptr) {
+        std::cout << error << std::endl;
+        exit(1);
+      }
+
+      double arity = *reinterpret_cast<double*>(arity_ptr);
+      std::string sym = reinterpret_cast<char*>(sym_ptr);
+      eval_type eval = reinterpret_cast<eval_type>(eval_ptr);
+
+
+      this->plugins[sym] = eval;
+    };
+
+    ~Calculator() {
+      for (auto& handler : this->plugin_handlers) {
+        dlclose(handler);
+      }
+    };
 };
 
 int main() {

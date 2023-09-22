@@ -2,9 +2,11 @@
 #include <iostream>
 #include <string>
 
-char* sym = "**";
+extern "C" {
+  double arity = 2;
+  std::string sym = "**";
 
-double func(double a, double b) {
-  return std::pow(a, b);
-};
-
+  double eval(double a, double b) {
+    return std::pow(a, b);
+  }
+}
