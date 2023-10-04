@@ -1,5 +1,6 @@
 #include "Operator.h"
 #include "Calculator.h"
+#include <iostream>
 
 Calculator::Calculator() {
   Operator* plus_op = new Binary_operator("plus", "+", 2, [] (const std::vector<double>& args) {
@@ -44,7 +45,6 @@ void Calculator::add_plugin(std::string filename) {
   void* is_function_ptr = dlsym(handler, "is_function");
 
   char* error = dlerror();
-
   if (error != nullptr) {
     throw std::runtime_error(error);
   }
@@ -62,11 +62,19 @@ void Calculator::add_plugin(std::string filename) {
   } else if (arity == 1) {
     void* associativity_ptr = dlsym(handler, "associativity");
     Associativity associativity = *reinterpret_cast<Associativity*>(associativity_ptr);
+    char* error = dlerror();
+    if (error != nullptr) {
+      throw std::runtime_error(error);
+    }
 
     op = new Unary_operator(name, sym, associativity, eval);
   } else {
     void* precedence_ptr = dlsym(handler, "precedence");
     int precedence = *reinterpret_cast<int*>(precedence_ptr);
+    char* error = dlerror();
+    if (error != nullptr) {
+      throw std::runtime_error(error);
+    }
 
     op = new Binary_operator(name, sym, precedence, eval);
   }

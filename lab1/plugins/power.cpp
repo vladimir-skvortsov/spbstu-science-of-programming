@@ -3,8 +3,11 @@
 #include <string>
 
 extern "C" {
-  double arity = 2;
-  std::string sym = "**";
+  std::string name = "power";
+  std::string sym = "^";
+  int arity = 2;
+  int precedence = 4;
+  bool is_function = false;
 
   double eval(double a, double b) {
     return std::pow(a, b);
