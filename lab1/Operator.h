@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
-#include <list>
+#include <vector>
 
-using Eval_func = std::function<double (const std::list<double>&)>;
+using Eval_func = std::function<double (const std::vector<double>&)>;
 
 class Operator {
   private:
@@ -12,12 +12,12 @@ class Operator {
     Eval_func& eval;
 
   public:
-    Operator(std::string name, std::string sym, int arity, Eval_func& eval) : name(name), sym(sym), arity(arity), eval(eval) {};
+    Operator(std::string name, std::string sym, int arity, Eval_func& eval): name(name), sym(sym), arity(arity), eval(eval) {};
 
     virtual std::string get_name() const final;
     virtual std::string get_sym() const final;
     virtual int get_arity() const final;
-    virtual double eval(const std::list<std::string> &args) const final;
+    virtual double eval(const std::vector<std::string> &args) const final;
 };
 
 enum Associativity {
