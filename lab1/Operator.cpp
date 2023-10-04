@@ -9,8 +9,8 @@ std::string Operator::get_sym() const {
 int Operator::get_arity() const {
   return arity;
 };
-double Operator::eval(const std::vector<std::string>& args) const {
-  return this->eval(args);
+double Operator::eval(const std::vector<double>& args) const {
+  return eval_func(args);
 };
 
 Associativity Unary_operator::get_associativity() const {
