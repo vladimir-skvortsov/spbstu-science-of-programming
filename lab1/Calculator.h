@@ -10,7 +10,9 @@ class Calculator {
     std::vector<Operator*> operators;
 
   public:
-    Calculator() {};
+    Calculator();
+
+    static std::string get_plugins_dir_path();
 
     virtual double eval(std::string expression) const final;
     virtual void add_plugin(std::string filename) final;

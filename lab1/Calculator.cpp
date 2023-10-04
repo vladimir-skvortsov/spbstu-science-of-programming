@@ -21,8 +21,12 @@ Calculator::Calculator() {
   operators.push_back(division_op);
 };
 
-double Calculator::eval(std::string expression) const {
+std::string Calculator::get_plugins_dir_path() {
+  return Calculator::plugins_dir_path;
+};
 
+double Calculator::eval(std::string expression) const {
+  return 42;
 };
 
 void Calculator::add_plugin(std::string filename) {
@@ -47,9 +51,9 @@ void Calculator::add_plugin(std::string filename) {
 
   std::string name = reinterpret_cast<char*>(name_ptr);
   std::string sym = reinterpret_cast<char*>(sym_ptr);
-  int arity = reinterpret_cast<int>(arity_ptr);
+  int arity = *reinterpret_cast<int*>(arity_ptr);
   Eval_func eval = reinterpret_cast<double (*)(const std::vector<double> &)>(eval_ptr);
-  bool is_function = reinterpret_cast<bool>(is_function_ptr);
+  bool is_function = *reinterpret_cast<bool*>(is_function_ptr);
 
   Operator* op = nullptr;
 
@@ -62,7 +66,7 @@ void Calculator::add_plugin(std::string filename) {
     op = new Unary_operator(name, sym, associativity, eval);
   } else {
     void* precedence_ptr = dlsym(handler, "precedence");
-    int precedence = reinterpret_cast<int>(precedence_ptr);
+    int precedence = *reinterpret_cast<int*>(precedence_ptr);
 
     op = new Binary_operator(name, sym, precedence, eval);
   }
