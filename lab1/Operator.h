@@ -2,7 +2,7 @@
 #include <string>
 #include <list>
 
-using Eval_func = std::function<double (const std::list<std::string>&)>;
+using Eval_func = std::function<double (const std::list<double>&)>;
 
 class Operator {
   private:
