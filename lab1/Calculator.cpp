@@ -1,6 +1,5 @@
 #include "Operator.h"
 #include "Calculator.h"
-#include <iostream>
 
 Calculator::Calculator() {
   Operator* plus_op = new Binary_operator("plus", "+", 2, [] (const std::vector<double>& args) {
