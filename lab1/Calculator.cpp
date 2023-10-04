@@ -2,16 +2,16 @@
 #include "Calculator.h"
 
 Calculator::Calculator() {
-  Operator* plus_op = new Binary_operator("plus", "+", 1, [] (const std::vector<double>& args) {
+  Operator* plus_op = new Binary_operator("plus", "+", 2, [] (const std::vector<double>& args) {
     return args[0] + args[1];
   });
-  Operator* minus_op = new Binary_operator("minus", "-", 1, [] (const std::vector<double>& args) {
+  Operator* minus_op = new Binary_operator("minus", "-", 2, [] (const std::vector<double>& args) {
     return args[0] - args[1];
   });
-  Operator* multiplication_op = new Binary_operator("multiplication", "*", 2, [] (const std::vector<double>& args) {
+  Operator* multiplication_op = new Binary_operator("multiplication", "*", 3, [] (const std::vector<double>& args) {
     return args[0] * args[1];
   });
-  Operator* division_op = new Binary_operator("division", "/", 2, [] (const std::vector<double>& args) {
+  Operator* division_op = new Binary_operator("division", "/", 3, [] (const std::vector<double>& args) {
     return args[0] / args[1];
   });
 
