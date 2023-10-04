@@ -20,6 +20,6 @@ double Operator::eval(const std::list<std::string>& args) const {
   return this->eval(args);
 };
 
-Associativity Binary_operator::get_associativity() const {
+Associativity Unary_operator::get_associativity() const {
   return associativity;
 };

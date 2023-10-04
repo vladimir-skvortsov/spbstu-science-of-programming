@@ -27,12 +27,12 @@ enum Associativity {
   Right_associativity,
 };
 
-class Binary_operator : public Operator {
+class Unary_operator : public Operator {
   private:
     Associativity associativity;
 
   public:
-    Binary_operator(std::string name, std::string sym, int arity, int precedence, Associativity associativity, Eval_func& eval): Operator(name, sym, arity, precedence, eval), associativity(associativity) {};
+    Unary_operator(std::string name, std::string sym, int arity, int precedence, Associativity associativity, Eval_func& eval): Operator(name, sym, 1, precedence, eval), associativity(associativity) {};
 
     virtual Associativity get_associativity() const final;
 };
