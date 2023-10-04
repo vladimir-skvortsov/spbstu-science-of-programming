@@ -25,11 +25,11 @@ std::string Calculator::get_plugins_dir_path() {
   return Calculator::plugins_dir_path;
 };
 
-double Calculator::eval(std::string expression) const {
+double Calculator::eval(const std::string& expression) const {
   return 42;
 };
 
-void Calculator::add_plugin(std::string filename) {
+void Calculator::add_plugin(const std::string& filename) {
   std::string plugin_path = Calculator::plugins_dir_path + filename;
   void* handler = dlopen(plugin_path.c_str(), RTLD_NOW);
 

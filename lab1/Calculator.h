@@ -14,6 +14,6 @@ class Calculator {
 
     static std::string get_plugins_dir_path();
 
-    virtual double eval(std::string expression) const final;
-    virtual void add_plugin(std::string filename) final;
+    virtual double eval(const std::string& expression) const final;
+    virtual void add_plugin(const std::string& filename) final;
 };
