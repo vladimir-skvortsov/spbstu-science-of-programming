@@ -9,16 +9,14 @@ class Operator {
     std::string name;
     std::string sym;
     int arity;
-    int precedence;
     Eval_func& eval;
 
   public:
-    Operator(std::string name, std::string sym, int arity, int precedence, Eval_func& eval) : name(name), sym(sym), arity(arity), precedence(precedence), eval(eval) {};
+    Operator(std::string name, std::string sym, int arity, Eval_func& eval) : name(name), sym(sym), arity(arity), eval(eval) {};
 
     virtual std::string get_name() const final;
     virtual std::string get_sym() const final;
     virtual int get_arity() const final;
-    virtual int get_precedence() const final;
     virtual double eval(const std::list<std::string> &args) const final;
 };
 
@@ -32,9 +30,22 @@ class Unary_operator : public Operator {
     Associativity associativity;
 
   public:
-    Unary_operator(std::string name, std::string sym, int arity, int precedence, Associativity associativity, Eval_func& eval): Operator(name, sym, 1, precedence, eval), associativity(associativity) {};
+    Unary_operator(std::string name, std::string sym, Associativity associativity, Eval_func& eval): Operator(name, sym, 1, eval), associativity(associativity) {};
 
     virtual Associativity get_associativity() const final;
 };
 
-class Function_operator : public Operator {};
+class Binary_operator : public Operator {
+  private:
+    int precedence;
+
+  public:
+    Binary_operator(std::string name, std::string sym, int precedence, Eval_func& eval): Operator(name, sym, 1, eval), precedence(precedence) {};
+
+    virtual int get_precedence() const final;
+};
+
+class Function_operator : public Operator {
+  public:
+    Function_operator(std::string name, std::string sym, int arity, Eval_func &eval) : Operator(name, sym, arity, eval) {};
+};
