@@ -26,7 +26,7 @@ int main() {
     calc->add_plugin(plugin);
   }
 
-  calc->eval("(2 + 1) ^ 3");
+  std::cout << calc->eval("2 + 2 * 3") << std::endl;
 
   return 0;
 };

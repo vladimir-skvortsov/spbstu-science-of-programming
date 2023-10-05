@@ -27,9 +27,8 @@ std::string Calculator::get_plugins_dir_path() {
 
 double Calculator::eval(const std::string& expression) const {
   std::vector<std::string> tokens = shunting_yard(expression);
-  execution_order(tokens);
-
-  return 42;
+  double result = execution_order(tokens);
+  return result;
 };
 
 void Calculator::add_plugin(const std::string& filename) {
@@ -280,7 +279,7 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
   return tokens;
 };
 
-bool Calculator::execution_order(const std::vector<std::string>& tokens) const {
+double Calculator::execution_order(const std::vector<std::string>& tokens) const {
   std::string input = "";
   for (const auto& token : tokens) {
     input += token + "|";
@@ -331,12 +330,9 @@ bool Calculator::execution_order(const std::vector<std::string>& tokens) const {
         int Tnargs = nargs;
         double val = 0;
         std::string res = "(" + std::to_string(rn++) + ")";
-        std::cout << res << " = ";
 
-        if (sl < nargs)
-        {
-          std::cout << "Error: insufficient arguments in expression" << std::endl;
-          return false;
+        if (sl < nargs) {
+          throw std::runtime_error("Insufficient arguments in expression");
         }
 
         if (nargs == 1)
@@ -346,21 +342,15 @@ bool Calculator::execution_order(const std::vector<std::string>& tokens) const {
           sl--;
           Operator* op = get_operator(c_str);
           val = op->eval({sc2});
-          if (get_associativity(c_str))
-            std::cout << c_str << " " << sc << " = " << val << std::endl;
-          else
-            std::cout << sc << " " << c_str << " = " << val << std::endl;
         }
         else
         {
           std::string sc1 = stack[sl - 2];
           double sc21 = stack2[sl - 2];
-          std::cout << sc1 << " " << c << " ";
           std::string sc2 = stack[sl - 1];
           double sc22 = stack2[sl - 1];
           Operator *op = get_operator(c_str);
           val = op->eval({sc21, sc22});
-          std::cout << sc2 << " = " << val << std::endl;
           sl -= 2;
         }
         stack[sl] = res;
@@ -369,14 +359,9 @@ bool Calculator::execution_order(const std::vector<std::string>& tokens) const {
       }
     }
   }
-  if (sl == 1)
-  {
-    std::string sc = stack[sl - 1];
+  if (sl == 1) {
     double sc1 = stack2[sl - 1];
-    sl--;
-    std::cout << "Result : " << sc << " = " << sc1 << std::endl;
-    return true;
+    return sc1;
   }
-  std::cout << "Error: too many values entered by the user" << std::endl;
-  return false;
+  throw std::runtime_error("Too many values");
 }
