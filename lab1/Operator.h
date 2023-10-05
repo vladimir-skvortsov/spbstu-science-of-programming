@@ -41,7 +41,7 @@ class Binary_operator : public Operator {
     int precedence;
 
   public:
-    Binary_operator(std::string name, std::string sym, int precedence, Eval_func eval): Operator(name, sym, 1, eval), precedence(precedence) {};
+    Binary_operator(std::string name, std::string sym, int precedence, Eval_func eval): Operator(name, sym, 2, eval), precedence(precedence) {};
 
     virtual int get_precedence() const final;
 };
