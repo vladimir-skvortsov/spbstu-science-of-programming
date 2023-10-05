@@ -26,29 +26,7 @@ int main() {
     calc->add_plugin(plugin);
   }
 
-  // double init_number;
-  // std::cout << "Enter a number: ";
-  // std::cin >> init_number;
-  // calc->set(init_number);
-
-  // while (true) {
-  //   std::string operation;
-  //   std::cout << "Enter an operation (+, -, *, /, x (exit)): ";
-  //   std::cin >> operation;
-
-  //   if (operation == "x") {
-  //     break;
-  //   }
-
-  //   double value;
-  //   std::cout << "Enter the second number: ";
-  //   std::cin >> value;
-
-  //   calc.eval(operation, value);
-
-  //   std::cout << "Result is " << calc.get() << std::endl;
-  //   std::cout << std::endl;
-  // }
+  calc->eval("2 ^ 3");
 
   return 0;
 };
