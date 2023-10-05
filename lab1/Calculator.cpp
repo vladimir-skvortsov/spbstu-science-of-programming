@@ -135,14 +135,6 @@ bool Calculator::is_function(const std::string& symbol) const {
   return instance_of<Function_operator>(op);
 }
 
-bool isIdent(const std::string &symbol) {
-  return (symbol >= "0" && symbol <= "9");
-}
-
-bool isLetter(const std::string &symbol) {
-  return (symbol >= "a" && symbol <= "z");
-}
-
 std::vector<std::string> Calculator::shunting_yard(const std::string& expression) const {
   std::stack<std::string> operators_stack;
   std::vector<std::string> tokens;
@@ -236,6 +228,7 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
           break;
         }
       }
+
       operators_stack.push(current_entity);
     } else {
       throw std::runtime_error("Unknown token in " + current_entity);
@@ -272,7 +265,6 @@ double Calculator::execution_order(const std::vector<std::string>& tokens) const
     std::string current_entity = {ch};
 
     if (isdigit(ch)) {
-      double val;
       char c_current = input[index + 1];
 
       while (c_current != '|') {
@@ -282,34 +274,35 @@ double Calculator::execution_order(const std::vector<std::string>& tokens) const
       }
 
       index += 1;
-      std::istringstream(current_entity) >> val;
       stack[sl] = current_entity;
-      stack2[sl] = val;
+      stack2[sl] = std::stod(current_entity);
       sl += 1;
     } else {
-      if (isLetter(current_entity)) {
-        char c_current = input[index + 1];
+      if (isalpha(ch)) {
+        char ch_current = input[index + 1];
 
-        while (c_current != '|') {
-          current_entity += c_current;
+        while (ch_current != '|') {
+          current_entity += ch_current;
           index += 1;
-          c_current = input[index + 1];
+          ch_current = input[index + 1];
         }
 
         stack[sl] = current_entity;
       }
+
       index += 1;
+
       if (is_operator(current_entity) || is_function(current_entity)) {
-        int nargs = get_arity(current_entity);
+        int arity = get_arity(current_entity);
         double val = 0;
         std::string res = "(" + std::to_string(rn) + ")";
         rn += 1;
 
-        if (sl < nargs) {
+        if (sl < arity) {
           throw std::runtime_error("Insufficient arguments in expression");
         }
 
-        if (nargs == 1) {
+        if (arity == 1) {
           double sc2 = stack2[sl - 1];
           sl -= 1;
 

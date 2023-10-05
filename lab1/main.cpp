@@ -10,7 +10,9 @@ std::vector<std::string> get_plugins_filenames(std::string dir_path) {
   std::vector<std::string> files = {};
 
   for (const auto& entry : fs::directory_iterator(dir_path)) {
-    if (fs::is_regular_file(entry) && entry.path().extension() == ".dylib") {
+    std::string extension = entry.path().extension();
+
+    if (fs::is_regular_file(entry) && extension == ".dylib") {
       files.push_back(entry.path().filename());
     }
   }
