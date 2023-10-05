@@ -149,13 +149,13 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
 
   for (int index = 0; index < expression.length(); index += 1) {
     char ch = expression[index];
-    std::string c_str = {ch};
+    std::string current_entity = {ch};
 
     if (ch == ' ')
       continue;
 
     if (ch == '(') {
-      operators_stack.push(c_str);
+      operators_stack.push(current_entity);
     } else if (ch == ')') {
       bool pe = false;
 
@@ -193,12 +193,12 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
           dots_counter += 1;
 
           if (dots_counter == 2) {
-            throw std::runtime_error("More than one dot in number " + c_str);
+            throw std::runtime_error("More than one dot in number " + current_entity);
           }
 
-          c_str += ch_number;
+          current_entity += ch_number;
         } else if (isdigit(ch_number)) {
-          c_str += ch_number;
+          current_entity += ch_number;
         } else {
           break;
         }
@@ -206,13 +206,13 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
         index += 1;
       }
 
-      tokens.push_back(c_str);
+      tokens.push_back(current_entity);
     } else if (isalpha(ch)) {
       while (index < expression.length()) {
         char ch_function = expression[index + 1];
 
         if (isalpha(ch_function)) {
-          c_str += ch_function;
+          current_entity += ch_function;
         } else {
           break;
         }
@@ -220,25 +220,25 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
         index += 1;
       }
 
-      if (is_function(c_str)) {
-        operators_stack.push(c_str);
+      if (is_function(current_entity)) {
+        operators_stack.push(current_entity);
       }
-    } else if (is_operator(c_str)) {
+    } else if (is_operator(current_entity)) {
       while (!operators_stack.empty()) {
         std::string sc = operators_stack.top();
         std::string sc_str = {sc};
 
-        if (is_operator(sc_str) && ((get_associativity(c_str) && (get_precedence(c_str) <= get_precedence(sc_str))) ||
-                                    (!get_associativity(c_str) && (get_precedence(c_str) < get_precedence(sc_str))))) {
+        if (is_operator(sc_str) && ((get_associativity(current_entity) && (get_precedence(current_entity) <= get_precedence(sc_str))) ||
+                                    (!get_associativity(current_entity) && (get_precedence(current_entity) < get_precedence(sc_str))))) {
           tokens.push_back(sc_str);
           operators_stack.pop();
         } else {
           break;
         }
       }
-      operators_stack.push(c_str);
+      operators_stack.push(current_entity);
     } else {
-      throw std::runtime_error("Unknown token in " + c_str);
+      throw std::runtime_error("Unknown token in " + current_entity);
     }
   }
 
@@ -268,37 +268,42 @@ double Calculator::execution_order(const std::vector<std::string>& tokens) const
   int rn = 0;
 
   for (int index = 0; index < input.length(); index += 1) {
-    char c = input[index];
-    std::string c_str = {c};
-    if (isIdent(c_str)) {
+    char ch = input[index];
+    std::string current_entity = {ch};
+
+    if (isdigit(ch)) {
       double val;
       char c_current = input[index + 1];
+
       while (c_current != '|') {
-        c_str += c_current;
+        current_entity += c_current;
         index += 1;
         c_current = input[index + 1];
       }
+
       index += 1;
-      std::istringstream(c_str) >> val;
-      stack[sl] = c_str;
+      std::istringstream(current_entity) >> val;
+      stack[sl] = current_entity;
       stack2[sl] = val;
-      ++sl;
+      sl += 1;
     } else {
-      if (isLetter(c_str)) {
+      if (isLetter(current_entity)) {
         char c_current = input[index + 1];
+
         while (c_current != '|') {
-          c_str += c_current;
+          current_entity += c_current;
           index += 1;
           c_current = input[index + 1];
         }
-        stack[sl] = c_str;
+
+        stack[sl] = current_entity;
       }
       index += 1;
-      if (is_operator(c_str) || is_function(c_str)) {
-        int nargs = get_arity(c_str);
-        int Tnargs = nargs;
+      if (is_operator(current_entity) || is_function(current_entity)) {
+        int nargs = get_arity(current_entity);
         double val = 0;
-        std::string res = "(" + std::to_string(rn++) + ")";
+        std::string res = "(" + std::to_string(rn) + ")";
+        rn += 1;
 
         if (sl < nargs) {
           throw std::runtime_error("Insufficient arguments in expression");
@@ -306,25 +311,31 @@ double Calculator::execution_order(const std::vector<std::string>& tokens) const
 
         if (nargs == 1) {
           double sc2 = stack2[sl - 1];
-          sl--;
-          Operator* op = get_operator(c_str);
+          sl -= 1;
+
+          Operator* op = get_operator(current_entity);
           val = op->eval({sc2});
         } else {
           double sc21 = stack2[sl - 2];
           double sc22 = stack2[sl - 1];
-          Operator* op = get_operator(c_str);
+
+          Operator* op = get_operator(current_entity);
           val = op->eval({sc21, sc22});
+
           sl -= 2;
         }
+
         stack[sl] = res;
         stack2[sl] = val;
-        ++sl;
+        sl += 1;
       }
     }
   }
+
   if (sl == 1) {
     double sc1 = stack2[sl - 1];
     return sc1;
   }
+
   throw std::runtime_error("Too many values");
 }
