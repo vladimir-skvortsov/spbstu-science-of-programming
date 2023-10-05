@@ -159,14 +159,13 @@ bool isLetter(const std::string &symbol)
 std::vector<std::string> Calculator::shunting_yard(const std::string& expression) const {
   bool interruption = false;
   std::stack<std::string> op_stack;
-  int length = expression.length();
   std::vector<std::string> tokens;
-  for (int i = 0; i < length; ++i)
-  {
+
+  for (int index = 0; index < expression.length(); index += 1) {
     if (interruption == true) {
       throw std::runtime_error("Process was interrupted");
     }
-    char c = expression[i];
+    char c = expression[index];
     std::string c_str = {c};
     if (c_str != " ")
     {
@@ -203,13 +202,11 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
           }
         }
       }
-      else if (isIdent(c))
-      {
+      else if (isIdent(c)) {
         int j = 0;
         int dot_flag = 0;
-        while (j < length)
-        {
-          j = i + 1;
+        while (j < expression.length()) {
+          j = index + 1;
           char c_current = expression[j];
           if (c_current == '.')
           {
@@ -224,23 +221,23 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
             c_str += c_current;
           else
             break;
-          i++;
+          index += 1;
         }
         tokens.push_back(c_str);
       }
       else if (isLetter(c_str))
       {
-        int j = i + 1;
+        int j = index + 1;
         char c_current = expression[j];
-        while (j < length)
+        while (j < expression.length())
         {
-          j = i + 1;
+          j = index + 1;
           char c_current = expression[j];
           if (isLetter(c_current))
             c_str += c_current;
           else
             break;
-          i++;
+          index += 1;
         }
         if (is_function(c_str))
           op_stack.push(c_str);
