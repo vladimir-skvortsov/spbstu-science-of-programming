@@ -157,115 +157,93 @@ bool isLetter(const std::string &symbol)
 }
 
 std::vector<std::string> Calculator::shunting_yard(const std::string& expression) const {
-  bool interruption = false;
   std::stack<std::string> op_stack;
   std::vector<std::string> tokens;
 
   for (int index = 0; index < expression.length(); index += 1) {
-    if (interruption == true) {
-      throw std::runtime_error("Process was interrupted");
-    }
     char c = expression[index];
     std::string c_str = {c};
-    if (c_str != " ")
-    {
-      if (c == '(')
-      {
+
+    if (c_str != " ") {
+      if (c == '(') {
         op_stack.push(c_str);
-      }
-      else if (c == ')')
-      {
+      } else if (c == ')') {
         bool pe = false;
-        while (!op_stack.empty())
-        {
+        while (!op_stack.empty()) {
           std::string sc = op_stack.top();
           op_stack.pop();
-          if (sc == "(")
-          {
+          if (sc == "(") {
             pe = true;
             break;
-          }
-          else {
+          } else {
             tokens.push_back(sc);
           }
         }
         if (!pe) {
           throw std::runtime_error("Parentheses mismatched");
         }
-        if (!op_stack.empty())
-        {
+        if (!op_stack.empty()) {
           std::string sc = op_stack.top();
-          if (is_function(sc))
-          {
+          if (is_function(sc)) {
             tokens.push_back(sc);
             op_stack.pop();
           }
         }
-      }
-      else if (isIdent(c)) {
+      } else if (isIdent(c)) {
         int j = 0;
         int dot_flag = 0;
         while (j < expression.length()) {
           j = index + 1;
           char c_current = expression[j];
-          if (c_current == '.')
-          {
+          if (c_current == '.') {
             dot_flag++;
-            if (dot_flag < 2)
+            if (dot_flag < 2) {
               c_str += c_current;
-            else {
+            } else {
               throw std::runtime_error("More than one dot in number " + c_str);
             }
-          }
-          else if (isIdent(c_current))
+          } else if (isIdent(c_current)) {
             c_str += c_current;
-          else
+          } else {
             break;
+          }
           index += 1;
         }
         tokens.push_back(c_str);
-      }
-      else if (isLetter(c_str))
-      {
+      } else if (isLetter(c_str)) {
         int j = index + 1;
         char c_current = expression[j];
-        while (j < expression.length())
-        {
+        while (j < expression.length()) {
           j = index + 1;
           char c_current = expression[j];
-          if (isLetter(c_current))
+          if (isLetter(c_current)) {
             c_str += c_current;
-          else
+          } else {
             break;
+          }
           index += 1;
         }
         if (is_function(c_str))
           op_stack.push(c_str);
-      }
-      else if (is_operator(c_str))
-      {
-        while (!op_stack.empty())
-        {
+      } else if (is_operator(c_str)) {
+        while (!op_stack.empty()) {
           std::string sc = op_stack.top();
           std::string sc_str = {sc};
           if (is_operator(sc_str) && ((get_associativity(c_str) && (get_precedence(c_str) <= get_precedence(sc_str))) ||
-                                      (!get_associativity(c_str) && (get_precedence(c_str) < get_precedence(sc_str)))))
-          {
+                                      (!get_associativity(c_str) && (get_precedence(c_str) < get_precedence(sc_str))))) {
             tokens.push_back(sc_str);
             op_stack.pop();
-          }
-          else
+          } else {
             break;
+          }
         }
         op_stack.push(c_str);
-      }
-      else {
+      } else {
         throw std::runtime_error("Unknown token in " + c_str);
       }
     }
   }
-  while (!op_stack.empty())
-  {
+  while (!op_stack.empty()) {
     std::string sc = op_stack.top();
     op_stack.pop();
     if (sc == "(" || sc == ")") {
@@ -281,48 +259,40 @@ double Calculator::execution_order(const std::vector<std::string>& tokens) const
   for (const auto& token : tokens) {
     input += token + "|";
   }
-  int const length = input.length();
-  std::vector<std::string> stack(length);
-  std::vector<double> stack2(length);
+
+  std::vector<std::string> stack(input.length());
+  std::vector<double> stack2(input.length());
   int sl = 0;
   int rn = 0;
-  for (int i = 0; i < length; ++i)
-  {
-    char c = input[i];
-    std::string c_str = {c};
-    if (isIdent(c_str))
-    {
-      double val;
-      char c_current = input[i + 1];
-      while (c_current != '|')
-      {
 
+  for (int index = 0; index < input.length(); index += 1) {
+    char c = input[index];
+    std::string c_str = {c};
+    if (isIdent(c_str)) {
+      double val;
+      char c_current = input[index + 1];
+      while (c_current != '|') {
         c_str += c_current;
-        i++;
-        c_current = input[i + 1];
+        index += 1;
+        c_current = input[index + 1];
       }
-      i++;
+      index += 1;
       std::istringstream(c_str) >> val;
       stack[sl] = c_str;
       stack2[sl] = val;
       ++sl;
-    }
-    else
-    {
-      if (isLetter(c_str))
-      {
-        char c_current = input[i + 1];
-        while (c_current != '|')
-        {
+    } else {
+      if (isLetter(c_str)) {
+        char c_current = input[index + 1];
+        while (c_current != '|') {
           c_str += c_current;
-          i++;
-          c_current = input[i + 1];
+          index += 1;
+          c_current = input[index + 1];
         }
         stack[sl] = c_str;
       }
-      i++;
-      if (is_operator(c_str) || is_function(c_str))
-      {
+      index += 1;
+      if (is_operator(c_str) || is_function(c_str)) {
         int nargs = get_arity(c_str);
         int Tnargs = nargs;
         double val = 0;
@@ -332,16 +302,13 @@ double Calculator::execution_order(const std::vector<std::string>& tokens) const
           throw std::runtime_error("Insufficient arguments in expression");
         }
 
-        if (nargs == 1)
-        {
+        if (nargs == 1) {
           std::string sc = stack[sl - 1];
           double sc2 = stack2[sl - 1];
           sl--;
           Operator* op = get_operator(c_str);
           val = op->eval({sc2});
-        }
-        else
-        {
+        } else {
           std::string sc1 = stack[sl - 2];
           double sc21 = stack2[sl - 2];
           std::string sc2 = stack[sl - 1];
