@@ -144,7 +144,7 @@ bool isLetter(const std::string &symbol) {
 }
 
 std::vector<std::string> Calculator::shunting_yard(const std::string& expression) const {
-  std::stack<std::string> op_stack;
+  std::stack<std::string> operators_stack;
   std::vector<std::string> tokens;
 
   for (int index = 0; index < expression.length(); index += 1) {
@@ -155,12 +155,14 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
       continue;
 
     if (ch == '(') {
-      op_stack.push(c_str);
+      operators_stack.push(c_str);
     } else if (ch == ')') {
       bool pe = false;
-      while (!op_stack.empty()) {
-        std::string sc = op_stack.top();
-        op_stack.pop();
+
+      while (!operators_stack.empty()) {
+        std::string sc = operators_stack.top();
+        operators_stack.pop();
+
         if (sc == "(") {
           pe = true;
           break;
@@ -168,76 +170,86 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
           tokens.push_back(sc);
         }
       }
+
       if (!pe) {
         throw std::runtime_error("Parentheses mismatched");
       }
-      if (!op_stack.empty()) {
-        std::string sc = op_stack.top();
+
+      if (!operators_stack.empty()) {
+        std::string sc = operators_stack.top();
+
         if (is_function(sc)) {
           tokens.push_back(sc);
-          op_stack.pop();
+          operators_stack.pop();
         }
       }
     } else if (isdigit(ch)) {
-      int j = 0;
-      int dot_flag = 0;
-      while (j < expression.length()) {
-        j = index + 1;
-        char c_current = expression[j];
-        if (c_current == '.') {
-          dot_flag++;
-          if (dot_flag < 2) {
-            c_str += c_current;
-          } else {
+      int dots_counter = 0;
+
+      while (index < expression.length()) {
+        char ch_number = expression[index + 1];
+
+        if (ch_number == '.') {
+          dots_counter += 1;
+
+          if (dots_counter == 2) {
             throw std::runtime_error("More than one dot in number " + c_str);
           }
-        } else if (isdigit(c_current)) {
-          c_str += c_current;
+
+          c_str += ch_number;
+        } else if (isdigit(ch_number)) {
+          c_str += ch_number;
         } else {
           break;
         }
+
         index += 1;
       }
+
       tokens.push_back(c_str);
-    } else if (isLetter(c_str)) {
-      int j = index + 1;
-      char c_current = expression[j];
-      while (j < expression.length()) {
-        j = index + 1;
-        char c_current = expression[j];
-        if (isalpha(c_current)) {
-          c_str += c_current;
+    } else if (isalpha(ch)) {
+      while (index < expression.length()) {
+        char ch_function = expression[index + 1];
+
+        if (isalpha(ch_function)) {
+          c_str += ch_function;
         } else {
           break;
         }
+
         index += 1;
       }
-      if (is_function(c_str))
-        op_stack.push(c_str);
+
+      if (is_function(c_str)) {
+        operators_stack.push(c_str);
+      }
     } else if (is_operator(c_str)) {
-      while (!op_stack.empty()) {
-        std::string sc = op_stack.top();
+      while (!operators_stack.empty()) {
+        std::string sc = operators_stack.top();
         std::string sc_str = {sc};
+
         if (is_operator(sc_str) && ((get_associativity(c_str) && (get_precedence(c_str) <= get_precedence(sc_str))) ||
                                     (!get_associativity(c_str) && (get_precedence(c_str) < get_precedence(sc_str))))) {
           tokens.push_back(sc_str);
-          op_stack.pop();
+          operators_stack.pop();
         } else {
           break;
         }
       }
-      op_stack.push(c_str);
+      operators_stack.push(c_str);
     } else {
       throw std::runtime_error("Unknown token in " + c_str);
     }
   }
 
-  while (!op_stack.empty()) {
-    std::string sc = op_stack.top();
-    op_stack.pop();
+  while (!operators_stack.empty()) {
+    std::string sc = operators_stack.top();
+    operators_stack.pop();
+
     if (sc == "(" || sc == ")") {
       throw std::runtime_error("Parentheses mismatched");
     }
+
     tokens.push_back(sc);
   }
 
