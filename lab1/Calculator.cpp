@@ -118,22 +118,21 @@ bool Calculator::get_associativity(const std::string& sym) const {
   }
 };
 
-bool Calculator::is_operator(const std::string& symbol) const {
-  if (symbol == "(" || symbol == ")")
+template<typename Base, typename T>
+inline bool instance_of(const T *ptr) {
+  return dynamic_cast<const Base*>(ptr) != nullptr;
+}
+
+bool Calculator::is_operator(const std::string& sym) const {
+  if (sym == "(" || sym == ")")
     return false;
-  bool acc = this->get_associativity(symbol);
-  int bin = this->get_arity(symbol);
-  if ((acc == true && bin == 2) || (acc == false && bin == 1))
-    return true;
-  return false;
+  Operator* op = get_operator(sym);
+  return instance_of<Unary_operator>(op) || instance_of<Binary_operator>(op);
 }
 
 bool Calculator::is_function(const std::string& symbol) const {
-  if (symbol == "(" || symbol == ")")
-    return false;
-  if (this->get_associativity(symbol) == true && this->get_arity(symbol) == 1)
-    return true;
-  return false;
+  Operator* op = get_operator(symbol);
+  return instance_of<Function_operator>(op);
 }
 
 bool isIdent(const std::string &symbol) {
@@ -149,88 +148,90 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
   std::vector<std::string> tokens;
 
   for (int index = 0; index < expression.length(); index += 1) {
-    char c = expression[index];
-    std::string c_str = {c};
+    char ch = expression[index];
+    std::string c_str = {ch};
 
-    if (c_str != " ") {
-      if (c == '(') {
-        op_stack.push(c_str);
-      } else if (c == ')') {
-        bool pe = false;
-        while (!op_stack.empty()) {
-          std::string sc = op_stack.top();
-          op_stack.pop();
-          if (sc == "(") {
-            pe = true;
-            break;
-          } else {
-            tokens.push_back(sc);
-          }
+    if (ch == ' ')
+      continue;
+
+    if (ch == '(') {
+      op_stack.push(c_str);
+    } else if (ch == ')') {
+      bool pe = false;
+      while (!op_stack.empty()) {
+        std::string sc = op_stack.top();
+        op_stack.pop();
+        if (sc == "(") {
+          pe = true;
+          break;
+        } else {
+          tokens.push_back(sc);
         }
-        if (!pe) {
-          throw std::runtime_error("Parentheses mismatched");
-        }
-        if (!op_stack.empty()) {
-          std::string sc = op_stack.top();
-          if (is_function(sc)) {
-            tokens.push_back(sc);
-            op_stack.pop();
-          }
-        }
-      } else if (isdigit(c)) {
-        int j = 0;
-        int dot_flag = 0;
-        while (j < expression.length()) {
-          j = index + 1;
-          char c_current = expression[j];
-          if (c_current == '.') {
-            dot_flag++;
-            if (dot_flag < 2) {
-              c_str += c_current;
-            } else {
-              throw std::runtime_error("More than one dot in number " + c_str);
-            }
-          } else if (isdigit(c_current)) {
-            c_str += c_current;
-          } else {
-            break;
-          }
-          index += 1;
-        }
-        tokens.push_back(c_str);
-      } else if (isLetter(c_str)) {
-        int j = index + 1;
-        char c_current = expression[j];
-        while (j < expression.length()) {
-          j = index + 1;
-          char c_current = expression[j];
-          if (isalpha(c_current)) {
-            c_str += c_current;
-          } else {
-            break;
-          }
-          index += 1;
-        }
-        if (is_function(c_str))
-          op_stack.push(c_str);
-      } else if (is_operator(c_str)) {
-        while (!op_stack.empty()) {
-          std::string sc = op_stack.top();
-          std::string sc_str = {sc};
-          if (is_operator(sc_str) && ((get_associativity(c_str) && (get_precedence(c_str) <= get_precedence(sc_str))) ||
-                                      (!get_associativity(c_str) && (get_precedence(c_str) < get_precedence(sc_str))))) {
-            tokens.push_back(sc_str);
-            op_stack.pop();
-          } else {
-            break;
-          }
-        }
-        op_stack.push(c_str);
-      } else {
-        throw std::runtime_error("Unknown token in " + c_str);
       }
+      if (!pe) {
+        throw std::runtime_error("Parentheses mismatched");
+      }
+      if (!op_stack.empty()) {
+        std::string sc = op_stack.top();
+        if (is_function(sc)) {
+          tokens.push_back(sc);
+          op_stack.pop();
+        }
+      }
+    } else if (isdigit(ch)) {
+      int j = 0;
+      int dot_flag = 0;
+      while (j < expression.length()) {
+        j = index + 1;
+        char c_current = expression[j];
+        if (c_current == '.') {
+          dot_flag++;
+          if (dot_flag < 2) {
+            c_str += c_current;
+          } else {
+            throw std::runtime_error("More than one dot in number " + c_str);
+          }
+        } else if (isdigit(c_current)) {
+          c_str += c_current;
+        } else {
+          break;
+        }
+        index += 1;
+      }
+      tokens.push_back(c_str);
+    } else if (isLetter(c_str)) {
+      int j = index + 1;
+      char c_current = expression[j];
+      while (j < expression.length()) {
+        j = index + 1;
+        char c_current = expression[j];
+        if (isalpha(c_current)) {
+          c_str += c_current;
+        } else {
+          break;
+        }
+        index += 1;
+      }
+      if (is_function(c_str))
+        op_stack.push(c_str);
+    } else if (is_operator(c_str)) {
+      while (!op_stack.empty()) {
+        std::string sc = op_stack.top();
+        std::string sc_str = {sc};
+        if (is_operator(sc_str) && ((get_associativity(c_str) && (get_precedence(c_str) <= get_precedence(sc_str))) ||
+                                    (!get_associativity(c_str) && (get_precedence(c_str) < get_precedence(sc_str))))) {
+          tokens.push_back(sc_str);
+          op_stack.pop();
+        } else {
+          break;
+        }
+      }
+      op_stack.push(c_str);
+    } else {
+      throw std::runtime_error("Unknown token in " + c_str);
     }
   }
+
   while (!op_stack.empty()) {
     std::string sc = op_stack.top();
     op_stack.pop();
@@ -239,6 +240,7 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
     }
     tokens.push_back(sc);
   }
+
   return tokens;
 };
 
@@ -291,17 +293,14 @@ double Calculator::execution_order(const std::vector<std::string>& tokens) const
         }
 
         if (nargs == 1) {
-          std::string sc = stack[sl - 1];
           double sc2 = stack2[sl - 1];
           sl--;
           Operator* op = get_operator(c_str);
           val = op->eval({sc2});
         } else {
-          std::string sc1 = stack[sl - 2];
           double sc21 = stack2[sl - 2];
-          std::string sc2 = stack[sl - 1];
           double sc22 = stack2[sl - 1];
-          Operator *op = get_operator(c_str);
+          Operator* op = get_operator(c_str);
           val = op->eval({sc21, sc22});
           sl -= 2;
         }

@@ -26,7 +26,7 @@ int main() {
     calc->add_plugin(plugin);
   }
 
-  std::cout << calc->eval("2 + 2 ^ 3") << std::endl;
+  std::cout << calc->eval("(sin(3.1415926) + 3) ^ 2") << std::endl;
 
   return 0;
 };
