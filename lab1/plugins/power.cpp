@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <vector>
 
 extern "C" {
   std::string name = "power";
@@ -9,7 +10,7 @@ extern "C" {
   int precedence = 4;
   bool is_function = false;
 
-  double eval(double a, double b) {
-    return std::pow(a, b);
+  double eval(std::vector<double> args) {
+    return std::pow(args[0], args[1]);
   }
 }
