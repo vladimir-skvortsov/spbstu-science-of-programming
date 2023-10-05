@@ -26,13 +26,8 @@ std::string Calculator::get_plugins_dir_path() {
 };
 
 double Calculator::eval(const std::string& expression) const {
-  std::string output = "";
-
-  if (shunting_yard(expression, output)) {
-    execution_order(output);
-  }
-
-  std::cout << output << std::endl;
+  std::vector<std::string> tokens = shunting_yard(expression);
+  execution_order(tokens);
 
   return 42;
 };
@@ -162,20 +157,17 @@ bool isLetter(const std::string &symbol)
   return (symbol >= "a" && symbol <= "z");
 }
 
-bool Calculator::shunting_yard(const std::string& input, std::string& output) const {
+std::vector<std::string> Calculator::shunting_yard(const std::string& expression) const {
   bool interruption = false;
   std::stack<std::string> op_stack;
-  int length = input.length();
-  output = "";
+  int length = expression.length();
+  std::vector<std::string> tokens;
   for (int i = 0; i < length; ++i)
   {
-    if (interruption == true)
-    {
-      std::cerr << " Process was interrupted" << std::endl;
-      std::cerr << " Please, rewrite expression" << std::endl;
-      return false;
+    if (interruption == true) {
+      throw std::runtime_error("Process was interrupted");
     }
-    char c = input[i];
+    char c = expression[i];
     std::string c_str = {c};
     if (c_str != " ")
     {
@@ -195,21 +187,19 @@ bool Calculator::shunting_yard(const std::string& input, std::string& output) co
             pe = true;
             break;
           }
-          else
-            output += sc + "|";
+          else {
+            tokens.push_back(sc);
+          }
         }
-        if (!pe)
-        {
-          std::cout << "Error: parentheses mismatched" << std::endl;
-          interruption = true;
-          return false;
+        if (!pe) {
+          throw std::runtime_error("Parentheses mismatched");
         }
         if (!op_stack.empty())
         {
           std::string sc = op_stack.top();
           if (is_function(sc))
           {
-            output += sc + "|";
+            tokens.push_back(sc);
             op_stack.pop();
           }
         }
@@ -221,17 +211,14 @@ bool Calculator::shunting_yard(const std::string& input, std::string& output) co
         while (j < length)
         {
           j = i + 1;
-          char c_current = input[j];
+          char c_current = expression[j];
           if (c_current == '.')
           {
             dot_flag++;
             if (dot_flag < 2)
               c_str += c_current;
-            else
-            {
-              std::cerr << " More than one dot in number :" << c_str << std::endl;
-              interruption = true;
-              break;
+            else {
+              throw std::runtime_error("More than one dot in number " + c_str);
             }
           }
           else if (isIdent(c_current))
@@ -240,16 +227,16 @@ bool Calculator::shunting_yard(const std::string& input, std::string& output) co
             break;
           i++;
         }
-        output += c_str + "|";
+        tokens.push_back(c_str);
       }
       else if (isLetter(c_str))
       {
         int j = i + 1;
-        char c_current = input[j];
+        char c_current = expression[j];
         while (j < length)
         {
           j = i + 1;
-          char c_current = input[j];
+          char c_current = expression[j];
           if (isLetter(c_current))
             c_str += c_current;
           else
@@ -268,7 +255,7 @@ bool Calculator::shunting_yard(const std::string& input, std::string& output) co
           if (is_operator(sc_str) && ((get_associativity(c_str) && (get_precedence(c_str) <= get_precedence(sc_str))) ||
                                       (!get_associativity(c_str) && (get_precedence(c_str) < get_precedence(sc_str)))))
           {
-            output += sc_str + "|";
+            tokens.push_back(sc_str);
             op_stack.pop();
           }
           else
@@ -276,11 +263,8 @@ bool Calculator::shunting_yard(const std::string& input, std::string& output) co
         }
         op_stack.push(c_str);
       }
-      else
-      {
-        std::cout << "Unknown token in" << c_str << std::endl;
-        interruption = true;
-        return false;
+      else {
+        throw std::runtime_error("Unknown token in " + c_str);
       }
     }
   }
@@ -288,18 +272,19 @@ bool Calculator::shunting_yard(const std::string& input, std::string& output) co
   {
     std::string sc = op_stack.top();
     op_stack.pop();
-    if (sc == "(" || sc == ")")
-    {
-      std::cout << "Error: parentheses mismatched" << std::endl;
-      interruption = true;
-      return false;
+    if (sc == "(" || sc == ")") {
+      throw std::runtime_error("Parentheses mismatched");
     }
-    output += sc + "|";
+    tokens.push_back(sc);
   }
-  return true;
+  return tokens;
 };
 
-bool Calculator::execution_order(const std::string &input) const {
+bool Calculator::execution_order(const std::vector<std::string>& tokens) const {
+  std::string input = "";
+  for (const auto& token : tokens) {
+    input += token + "|";
+  }
   int const length = input.length();
   std::vector<std::string> stack(length);
   std::vector<double> stack2(length);

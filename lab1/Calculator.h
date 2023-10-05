@@ -12,8 +12,8 @@ class Calculator {
     inline static const std::string plugins_dir_path = "./plugins/";
     std::vector<Operator*> operators;
 
-    bool shunting_yard(const std::string& input, std::string& output) const;
-    bool execution_order(const std::string &input) const;
+    std::vector<std::string> shunting_yard(const std::string& expression) const;
+    bool execution_order(const std::vector<std::string>& input) const;
     Operator* get_operator(const std::string& sym) const;
     int get_precedence(const std::string& sym) const;
     int get_arity(const std::string& sym) const;

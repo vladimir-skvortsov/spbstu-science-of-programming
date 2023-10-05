@@ -26,7 +26,7 @@ int main() {
     calc->add_plugin(plugin);
   }
 
-  calc->eval("2 ^ 3");
+  calc->eval("(2 + 1) ^ 3");
 
   return 0;
 };
