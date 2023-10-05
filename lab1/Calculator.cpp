@@ -136,23 +136,11 @@ bool Calculator::is_function(const std::string& symbol) const {
   return false;
 }
 
-bool isIdent(const std::string &symbol)
-{
+bool isIdent(const std::string &symbol) {
   return (symbol >= "0" && symbol <= "9");
 }
 
-bool isIdent(char symbol)
-{
-  return (symbol >= '0' && symbol <= '9');
-}
-
-bool isLetter(char symbol)
-{
-  return (symbol >= 'a' && symbol <= 'z');
-}
-
-bool isLetter(const std::string &symbol)
-{
+bool isLetter(const std::string &symbol) {
   return (symbol >= "a" && symbol <= "z");
 }
 
@@ -189,7 +177,7 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
             op_stack.pop();
           }
         }
-      } else if (isIdent(c)) {
+      } else if (isdigit(c)) {
         int j = 0;
         int dot_flag = 0;
         while (j < expression.length()) {
@@ -202,7 +190,7 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
             } else {
               throw std::runtime_error("More than one dot in number " + c_str);
             }
-          } else if (isIdent(c_current)) {
+          } else if (isdigit(c_current)) {
             c_str += c_current;
           } else {
             break;
@@ -216,7 +204,7 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
         while (j < expression.length()) {
           j = index + 1;
           char c_current = expression[j];
-          if (isLetter(c_current)) {
+          if (isalpha(c_current)) {
             c_str += c_current;
           } else {
             break;
