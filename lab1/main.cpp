@@ -28,7 +28,18 @@ int main() {
     calc->add_plugin(plugin);
   }
 
-  std::cout << calc->eval("(sin(3.1415926) + 3 * 2) ^ 2") << std::endl;
+  while (true) {
+    std::string expression;
+    std::cout << "Enter expresion (x for exit): ";
+    std::getline(std::cin, expression);
+
+    if (expression == "x") {
+      break;
+    }
+
+    double result = calc->eval(expression);
+    std::cout << "Result is: " << result << std::endl << std::endl;
+  }
 
   return 0;
 };
