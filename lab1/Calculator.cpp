@@ -2,18 +2,38 @@
 #include "Calculator.h"
 
 Calculator::Calculator() {
-  Operator* plus_op = new Binary_operator("plus", "+", 2, [] (const std::vector<double>& args) {
-    return args[0] + args[1];
-  });
-  Operator* minus_op = new Binary_operator("minus", "-", 2, [] (const std::vector<double>& args) {
-    return args[0] - args[1];
-  });
-  Operator* multiplication_op = new Binary_operator("multiplication", "*", 3, [] (const std::vector<double>& args) {
-    return args[0] * args[1];
-  });
-  Operator* division_op = new Binary_operator("division", "/", 3, [] (const std::vector<double>& args) {
-    return args[0] / args[1];
-  });
+  std::shared_ptr<Operator> plus_op = std::make_shared<Binary_operator>(
+    "plus",
+    "+",
+    2,
+    [] (const std::vector<double>& args) {
+      return args[0] + args[1];
+    }
+  );
+  std::shared_ptr<Operator> minus_op = std::make_shared<Binary_operator>(
+    "minus",
+    "-",
+    2,
+    [] (const std::vector<double>& args) {
+      return args[0] - args[1];
+    }
+  );
+  std::shared_ptr<Operator> multiplication_op = std::make_shared<Binary_operator>(
+    "multiplication",
+    "*",
+    3,
+    [] (const std::vector<double>& args) {
+      return args[0] * args[1];
+    }
+  );
+  std::shared_ptr<Operator> division_op = std::make_shared<Binary_operator>(
+    "division",
+    "/",
+    3,
+    [] (const std::vector<double>& args) {
+      return args[0] / args[1];
+    }
+  );
 
   operators.push_back(plus_op);
   operators.push_back(minus_op);
@@ -56,10 +76,10 @@ void Calculator::add_plugin(const std::string& filename) {
   Eval_func eval = reinterpret_cast<double (*)(const std::vector<double> &)>(eval_ptr);
   bool is_function = *reinterpret_cast<bool*>(is_function_ptr);
 
-  Operator* op = nullptr;
+  std::shared_ptr<Operator> op = nullptr;
 
   if (is_function) {
-    op = new Function_operator(name, sym, arity, eval);
+    op = std::make_shared<Function_operator>(name, sym, arity, eval);
   } else if (arity == 1) {
     void* associativity_ptr = dlsym(handler, "associativity");
     Associativity associativity = *reinterpret_cast<Associativity*>(associativity_ptr);
@@ -68,7 +88,7 @@ void Calculator::add_plugin(const std::string& filename) {
       throw std::runtime_error(error);
     }
 
-    op = new Unary_operator(name, sym, associativity, eval);
+    op = std::make_shared<Unary_operator>(name, sym, associativity, eval);
   } else {
     void* precedence_ptr = dlsym(handler, "precedence");
     int precedence = *reinterpret_cast<int*>(precedence_ptr);
@@ -77,13 +97,14 @@ void Calculator::add_plugin(const std::string& filename) {
       throw std::runtime_error(error);
     }
 
-    op = new Binary_operator(name, sym, precedence, eval);
+    op = std::make_shared<Binary_operator>(name, sym, precedence, eval);
   }
 
   operators.push_back(op);
+  dylib_handlers.push_back(handler);
 };
 
-Operator* Calculator::get_operator(const std::string& sym) const {
+std::shared_ptr<Operator> Calculator::get_operator(const std::string& sym) const {
   for (auto& op : operators) {
     if (op->get_sym() == sym) {
       return op;
@@ -94,45 +115,45 @@ Operator* Calculator::get_operator(const std::string& sym) const {
 };
 
 int Calculator::get_precedence(const std::string& sym) const {
-  Operator* op = get_operator(sym);
+  std::shared_ptr<Operator> op = get_operator(sym);
   int arity = get_arity(sym);
   if (op->get_arity() == 2) {
-    return dynamic_cast<Binary_operator*>(op)->get_precedence();
+    return std::dynamic_pointer_cast<Binary_operator>(op)->get_precedence();
   } else {
     return 1000;
   }
 };
 
 int Calculator::get_arity(const std::string& sym) const {
-  Operator* op = get_operator(sym);
+  std::shared_ptr<Operator> op = get_operator(sym);
   return op->get_arity();
 };
 
 bool Calculator::get_associativity(const std::string& sym) const {
-  Operator* op = get_operator(sym);
+  std::shared_ptr<Operator> op = get_operator(sym);
   int arity = get_arity(sym);
   if (arity == 1) {
-    return dynamic_cast<Unary_operator *>(op)->get_associativity() == Left_associativity;
+    return std::dynamic_pointer_cast<Unary_operator>(op)->get_associativity() == Left_associativity;
   } else {
     return true;
   }
 };
 
-template<typename Base, typename T>
-inline bool instance_of(const T *ptr) {
-  return dynamic_cast<const Base*>(ptr) != nullptr;
+template<typename Derived, typename Base>
+bool is_instance_of(const std::shared_ptr<Base>& base_ptr) {
+    return std::dynamic_pointer_cast<Derived>(base_ptr) != nullptr;
 }
 
 bool Calculator::is_operator(const std::string& sym) const {
   if (sym == "(" || sym == ")")
     return false;
-  Operator* op = get_operator(sym);
-  return instance_of<Unary_operator>(op) || instance_of<Binary_operator>(op);
+  std::shared_ptr<Operator> op = get_operator(sym);
+  return is_instance_of<Unary_operator>(op) || is_instance_of<Binary_operator>(op);
 }
 
 bool Calculator::is_function(const std::string& symbol) const {
-  Operator* op = get_operator(symbol);
-  return instance_of<Function_operator>(op);
+  std::shared_ptr<Operator> op = get_operator(symbol);
+  return is_instance_of<Function_operator>(op);
 }
 
 std::vector<std::string> Calculator::get_tokens(const std::string& expression) const {
@@ -307,13 +328,13 @@ double Calculator::execute_tokens(const std::vector<std::string>& tokens) const 
           double arg = results_stack[sl - 1];
           sl -= 1;
 
-          Operator* op = get_operator(current_entity);
+          std::shared_ptr<Operator> op = get_operator(current_entity);
           val = op->eval({arg});
         } else {
           double left_arg = results_stack[sl - 2];
           double right_arg = results_stack[sl - 1];
 
-          Operator* op = get_operator(current_entity);
+          std::shared_ptr<Operator> op = get_operator(current_entity);
           val = op->eval({left_arg, right_arg});
 
           sl -= 2;
@@ -332,3 +353,9 @@ double Calculator::execute_tokens(const std::vector<std::string>& tokens) const 
 
   throw std::runtime_error("Too many values");
 }
+
+Calculator::~Calculator() {
+  for (auto const handler : dylib_handlers) {
+    dlclose(handler);
+  }
+};
