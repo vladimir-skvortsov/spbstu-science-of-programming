@@ -255,8 +255,8 @@ double Calculator::execute_tokens(const std::vector<std::string>& tokens) const 
     input += token + "|";
   }
 
-  std::vector<std::string> stack(input.length());
-  std::vector<double> stack2(input.length());
+  std::vector<std::string> sub_exprs_stack(input.length());
+  std::vector<double> results_stack(input.length());
   int sl = 0;
   int rn = 0;
 
@@ -274,8 +274,8 @@ double Calculator::execute_tokens(const std::vector<std::string>& tokens) const 
       }
 
       index += 1;
-      stack[sl] = current_entity;
-      stack2[sl] = std::stod(current_entity);
+      sub_exprs_stack[sl] = current_entity;
+      results_stack[sl] = std::stod(current_entity);
       sl += 1;
     } else {
       if (isalpha(ch)) {
@@ -287,7 +287,7 @@ double Calculator::execute_tokens(const std::vector<std::string>& tokens) const 
           ch_current = input[index + 1];
         }
 
-        stack[sl] = current_entity;
+        sub_exprs_stack[sl] = current_entity;
       }
 
       index += 1;
@@ -303,14 +303,14 @@ double Calculator::execute_tokens(const std::vector<std::string>& tokens) const 
         }
 
         if (arity == 1) {
-          double arg = stack2[sl - 1];
+          double arg = results_stack[sl - 1];
           sl -= 1;
 
           Operator* op = get_operator(current_entity);
           val = op->eval({arg});
         } else {
-          double left_arg = stack2[sl - 2];
-          double right_arg = stack2[sl - 1];
+          double left_arg = results_stack[sl - 2];
+          double right_arg = results_stack[sl - 1];
 
           Operator* op = get_operator(current_entity);
           val = op->eval({left_arg, right_arg});
@@ -318,15 +318,15 @@ double Calculator::execute_tokens(const std::vector<std::string>& tokens) const 
           sl -= 2;
         }
 
-        stack[sl] = res;
-        stack2[sl] = val;
+        sub_exprs_stack[sl] = res;
+        results_stack[sl] = val;
         sl += 1;
       }
     }
   }
 
   if (sl == 1) {
-    return stack2[sl - 1];
+    return results_stack[sl - 1];
   }
 
   throw std::runtime_error("Too many values");
