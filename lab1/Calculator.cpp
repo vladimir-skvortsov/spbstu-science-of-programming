@@ -143,8 +143,9 @@ std::vector<std::string> Calculator::get_tokens(const std::string& expression) c
     char ch = expression[index];
     std::string current_entity = {ch};
 
-    if (ch == ' ')
+    if (ch == ' ') {
       continue;
+    }
 
     if (ch == '(') {
       operators_stack.push(current_entity);
