@@ -25,7 +25,11 @@ int main() {
 
   std::vector<std::string> plugins = get_plugins_filenames(Calculator::get_plugins_dir_path());
   for (const auto& plugin : plugins) {
-    calc->add_plugin(plugin);
+    try {
+      calc->add_plugin(plugin);
+    } catch(const std::exception& e) {
+      std::cerr << e.what() << std::endl;
+    }
   }
 
   while (true) {
