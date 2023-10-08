@@ -37,8 +37,12 @@ int main() {
       break;
     }
 
-    double result = calc->eval(expression);
-    std::cout << "Result is: " << result << std::endl << std::endl;
+    try {
+      double result = calc->eval(expression);
+      std::cout << "Result is: " << result << std::endl << std::endl;
+    } catch(const std::exception& e) {
+      std::cerr << e.what() << std::endl << std::endl;
+    }
   }
 
   return 0;
