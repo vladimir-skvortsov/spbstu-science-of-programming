@@ -26,8 +26,8 @@ std::string Calculator::get_plugins_dir_path() {
 };
 
 double Calculator::eval(const std::string& expression) const {
-  std::vector<std::string> tokens = shunting_yard(expression);
-  double result = execution_order(tokens);
+  std::vector<std::string> tokens = get_tokens(expression);
+  double result = execute_tokens(tokens);
   return result;
 };
 
@@ -135,7 +135,7 @@ bool Calculator::is_function(const std::string& symbol) const {
   return instance_of<Function_operator>(op);
 }
 
-std::vector<std::string> Calculator::shunting_yard(const std::string& expression) const {
+std::vector<std::string> Calculator::get_tokens(const std::string& expression) const {
   std::stack<std::string> operators_stack;
   std::vector<std::string> tokens;
 
@@ -249,7 +249,7 @@ std::vector<std::string> Calculator::shunting_yard(const std::string& expression
   return tokens;
 };
 
-double Calculator::execution_order(const std::vector<std::string>& tokens) const {
+double Calculator::execute_tokens(const std::vector<std::string>& tokens) const {
   std::string input = "";
   for (const auto& token : tokens) {
     input += token + "|";
@@ -265,12 +265,12 @@ double Calculator::execution_order(const std::vector<std::string>& tokens) const
     std::string current_entity = {ch};
 
     if (isdigit(ch)) {
-      char c_current = input[index + 1];
+      char ch_current = input[index + 1];
 
-      while (c_current != '|') {
-        current_entity += c_current;
+      while (ch_current != '|') {
+        current_entity += ch_current;
         index += 1;
-        c_current = input[index + 1];
+        ch_current = input[index + 1];
       }
 
       index += 1;
@@ -303,17 +303,17 @@ double Calculator::execution_order(const std::vector<std::string>& tokens) const
         }
 
         if (arity == 1) {
-          double sc2 = stack2[sl - 1];
+          double arg = stack2[sl - 1];
           sl -= 1;
 
           Operator* op = get_operator(current_entity);
-          val = op->eval({sc2});
+          val = op->eval({arg});
         } else {
-          double sc21 = stack2[sl - 2];
-          double sc22 = stack2[sl - 1];
+          double left_arg = stack2[sl - 2];
+          double right_arg = stack2[sl - 1];
 
           Operator* op = get_operator(current_entity);
-          val = op->eval({sc21, sc22});
+          val = op->eval({left_arg, right_arg});
 
           sl -= 2;
         }
@@ -326,8 +326,7 @@ double Calculator::execution_order(const std::vector<std::string>& tokens) const
   }
 
   if (sl == 1) {
-    double sc1 = stack2[sl - 1];
-    return sc1;
+    return stack2[sl - 1];
   }
 
   throw std::runtime_error("Too many values");
