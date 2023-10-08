@@ -12,8 +12,11 @@ class Calculator {
     inline static const std::string plugins_dir_path = "./plugins/";
     std::vector<Operator*> operators;
 
+    // Shunting yard algorithm
+    // Check for more information: https://en.wikipedia.org/wiki/Shunting_yard_algorithm
     std::vector<std::string> get_tokens(const std::string& expression) const;
     double execute_tokens(const std::vector<std::string>& input) const;
+
     Operator* get_operator(const std::string& sym) const;
     int get_precedence(const std::string& sym) const;
     int get_arity(const std::string& sym) const;
