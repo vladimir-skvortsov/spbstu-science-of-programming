@@ -10,6 +10,10 @@ int Operator::get_arity() const {
   return arity;
 };
 double Operator::eval(const std::vector<double>& args) const {
+  if (args.size() != arity) {
+    throw std::runtime_error("Incorrect number of arguments in " + sym);
+  }
+
   return eval_func(args);
 };
 
