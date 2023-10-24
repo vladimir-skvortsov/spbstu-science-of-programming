@@ -6,7 +6,8 @@
 #include <fstream>
 #include <algorithm>
 
-namespace XML {class Node {
+namespace XML {
+  class Node {
     public:
       std::string tag;
       std::string value;
