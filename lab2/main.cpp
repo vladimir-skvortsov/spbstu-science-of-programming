@@ -5,6 +5,7 @@
 #include <fstream>
 #include <algorithm>
 #include "xml.h"
+#include "resource_xml.h"
 
 int main() {
   XML::Document* document = new XML::Document();
