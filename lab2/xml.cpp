@@ -29,7 +29,10 @@ void XML::Node::for_each(std::function<void(const Node&)> callback) {
   };
 };
 
-XML::Document::Document() : root_node(nullptr){};
+XML::Document::Document() : root_node(nullptr) {};
+XML::Document::Document(const std::string& path) : root_node(nullptr) {
+  read_file(path);
+};
 void XML::Document::parse(const std::string& xml) {
   int pos = 0;
   root_node = parse_node(xml, pos);

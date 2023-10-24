@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <string>
 #include <vector>
@@ -21,6 +22,7 @@ namespace XML {class Node {
   class Document {
     public:
       Document();
+      Document(const std::string& path);
 
       void parse(const std::string& xml);
 
