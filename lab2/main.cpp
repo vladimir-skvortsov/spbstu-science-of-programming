@@ -8,16 +8,14 @@
 #include "resource_xml.h"
 
 int main() {
-  XML::Document* document = new XML::Document();
+  XML::Document document = XML::Document();
 
-  document->load("./example.xml");
-  document->print();
+  document.load("./example.xml");
+  document.print();
 
-  // std::function<void(const XML_node&)> callback = [](XML_node& node) {
-  //   std::cout << node << std::endl;
-  // };
-
-  // doc->for_each(callback);
+  for (XML::Document::iterator it = document.begin(); it != document.end(); ++it) {
+    std::cout << "tag: " << it->tag << ", value: " << it->value << std::endl;
+  }
 
   return 0;
 };

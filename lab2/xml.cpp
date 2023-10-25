@@ -28,6 +28,62 @@ void XML::Node::for_each(std::function<void(const Node&)> callback) {
     child->for_each(callback);
   };
 };
+std::vector<XML::Node*> XML::Node::get_descendants() {
+  std::vector<Node*> descendants = {};
+
+  for (const auto& child : children) {
+    descendants.push_back(child.get());
+    std::vector<Node*> child_descendants = child->get_descendants();
+    descendants.insert(descendants.end(), child_descendants.begin(), child_descendants.end());
+  }
+
+  return descendants;
+};
+
+XML::Node::iterator::iterator(Node* node) {
+  if (node) {
+    nodes = node->get_descendants();
+    nodes.insert(nodes.begin(), node);
+  }
+  it = nodes.begin();
+};
+XML::Node::iterator& XML::Node::iterator::operator ++ () {
+  it++;
+  return *this;
+};
+XML::Node::iterator XML::Node::iterator::operator ++ (int) {
+  iterator temp(*this);
+  ++(*this);
+  return temp;
+};
+XML::Node::iterator& XML::Node::iterator::operator += (int n) {
+  it += n;
+  return *this;
+};
+bool XML::Node::iterator::operator == (const iterator& other) const {
+  return *it == *other;
+};
+bool XML::Node::iterator::operator != (const iterator& other) const {
+  return !(*this == other);
+};
+XML::Node* XML::Node::iterator::operator * () const {
+  if (nodes.empty() || it == nodes.end()) {
+    return nullptr;
+  }
+  return *it;
+};
+XML::Node* XML::Node::iterator::operator -> () const {
+  if (it == nodes.end()) {
+    return nullptr;
+  }
+  return *it;
+};
+XML::Node::iterator XML::Node::begin() {
+  return XML::Node::iterator(this);
+};
+XML::Node::iterator XML::Node::end() {
+  return XML::Node::iterator(nullptr);
+};
 
 XML::Document::Document() : root_node(nullptr) {};
 XML::Document::Document(const std::string& path) : root_node(nullptr) {
@@ -125,4 +181,10 @@ std::string XML::Document::trim(const std::string& str) {
   };
 
   return str.substr(start_pos, end_pos - start_pos + 1);
+};
+XML::Document::iterator XML::Document::begin() {
+  return root_node->begin();
+};
+XML::Document::iterator XML::Document::end() {
+  return root_node->end();
 };
