@@ -16,7 +16,7 @@ namespace XML {
 
       Node(const std::string& tag, const std::string& value);
 
-      void append(std::unique_ptr<Node> child);
+      void add(std::unique_ptr<Node> child);
       std::string stringify(const int depth);
       void for_each(std::function<void(const Node&)> callback);
 

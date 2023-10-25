@@ -1,7 +1,7 @@
 #include "xml.h"
 
 XML::Node::Node(const std::string& tag, const std::string& value) : tag(tag), value(value) {};
-void XML::Node::append(std::unique_ptr<XML::Node> child) {
+void XML::Node::add(std::unique_ptr<XML::Node> child) {
   children.push_back(std::move(child));
 };
 std::string XML::Node::stringify(const int depth = 0) {
@@ -116,7 +116,7 @@ std::unique_ptr<XML::Node> XML::Document::parse_node(const std::string& xml, int
   std::string next_tag = get_next_tag(xml, pos);
   while (next_tag != ("/" + tag) && pos < xml.size()) {
     pos -= next_tag.size() + 2;
-    node->append(parse_node(xml, pos));
+    node->add(parse_node(xml, pos));
     next_tag = get_next_tag(xml, pos);
   }
 
