@@ -25,5 +25,11 @@ int main() {
   XML::Document::iterator it2 = document.find_by_value("Male");
   std::cout << "Gender is contained inside of " << it2->tag << " tag" << std::endl;
 
+  XML::Node* favorite_musician_node = new XML::Node("favorite-musician", "Kizaru");
+  XML::Document::iterator it3 = document.find_by_tag("person");
+  document.add(it3, favorite_musician_node);
+
+  document.save("./output.xml");
+
   return 0;
 };

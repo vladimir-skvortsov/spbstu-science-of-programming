@@ -216,3 +216,10 @@ XML::Document::iterator XML::Document::find_by_tag(const std::string& tag) {
 XML::Document::iterator XML::Document::find_by_value(const std::string& tag) {
   return root_node->find_by_value(tag);
 };
+XML::Document::iterator XML::Document::add(Node::iterator it, Node* node) {
+  if (!*it) {
+    throw std::runtime_error("Node does not exist");
+  }
+  it->add(std::unique_ptr<Node>(node));
+  return XML::Node::iterator(node);
+};

@@ -67,6 +67,7 @@ namespace XML {
       iterator end();
       iterator find_by_tag(const std::string &tag);
       iterator find_by_value(const std::string &value);
+      iterator add(Node::iterator it, Node* node);
 
     private:
       std::unique_ptr<Node> root_node;
