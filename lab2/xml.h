@@ -19,7 +19,6 @@ namespace XML {
       void add(std::unique_ptr<Node> child);
       std::string stringify(const int depth);
       void for_each(std::function<void(const Node&)> callback);
-
       std::vector<Node*> get_descendants();
 
       class iterator {
@@ -43,10 +42,12 @@ namespace XML {
         private:
           std::vector<Node*> nodes;
           std::vector<Node*>::iterator it;
-        };
+      };
 
-        iterator begin();
-        iterator end();
+      iterator begin();
+      iterator end();
+      iterator find_by_tag(const std::string &tag);
+      iterator find_by_value(const std::string &value);
   };
 
   class Document {
@@ -64,6 +65,8 @@ namespace XML {
       using iterator = Node::iterator;
       iterator begin();
       iterator end();
+      iterator find_by_tag(const std::string &tag);
+      iterator find_by_value(const std::string &value);
 
     private:
       std::unique_ptr<Node> root_node;

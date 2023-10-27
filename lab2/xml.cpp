@@ -39,6 +39,17 @@ std::vector<XML::Node*> XML::Node::get_descendants() {
 
   return descendants;
 };
+XML::Node::iterator XML::Node::find_by_tag(const std::string& query_tag) {
+  if (tag == query_tag)
+    return XML::Node::iterator(this);
+  for (const auto& child : children) {
+    XML::Node::iterator node = child->find_by_tag(query_tag);
+    if (*node) {
+      return node;
+    }
+  }
+  return XML::Node::iterator(nullptr);
+};
 
 XML::Node::iterator::iterator(Node* node) {
   if (node) {
@@ -187,4 +198,7 @@ XML::Document::iterator XML::Document::begin() {
 };
 XML::Document::iterator XML::Document::end() {
   return root_node->end();
+};
+XML::Document::iterator XML::Document::find_by_tag(const std::string& tag) {
+  return root_node->find_by_tag(tag);
 };
