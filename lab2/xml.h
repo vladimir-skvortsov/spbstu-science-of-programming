@@ -6,6 +6,7 @@
 #include <cmath>
 #include <fstream>
 #include <algorithm>
+#include <memory>
 
 namespace XML {
   class Node {
@@ -46,6 +47,7 @@ namespace XML {
 
       iterator begin();
       iterator end();
+      iterator find(std::function<bool (Node* node)> callback);
       iterator find_by_tag(const std::string &tag);
       iterator find_by_value(const std::string &value);
   };
@@ -63,11 +65,13 @@ namespace XML {
       void for_each(std::function<void(const Node&)> callback);
 
       using iterator = Node::iterator;
-      iterator begin();
-      iterator end();
-      iterator find_by_tag(const std::string &tag);
-      iterator find_by_value(const std::string &value);
-      iterator add(Node::iterator it, Node* node);
+      Node::iterator begin();
+      Node::iterator end();
+      Node::iterator find(std::function<bool (Node* node)>);
+      Node::iterator find_by_tag(const std::string &tag);
+      Node::iterator find_by_value(const std::string &value);
+      Node::iterator add(Node::iterator it, Node* node);
+      bool erase(Node::iterator it);
 
     private:
       std::unique_ptr<Node> root_node;

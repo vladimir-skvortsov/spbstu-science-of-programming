@@ -39,23 +39,13 @@ std::vector<XML::Node*> XML::Node::get_descendants() {
 
   return descendants;
 };
-XML::Node::iterator XML::Node::find_by_tag(const std::string& query_tag) {
-  if (tag == query_tag)
+XML::Node::iterator XML::Node::find(std::function<bool (Node* node)> callback) {
+  if (callback(this)) {
     return XML::Node::iterator(this);
-  for (const auto& child : children) {
-    XML::Node::iterator node = child->find_by_tag(query_tag);
-    if (*node) {
-      return node;
-    }
   }
-  return XML::Node::iterator(nullptr);
-};
-XML::Node::iterator XML::Node::find_by_value(const std::string& query_value) {
-  if (value == query_value)
-    return XML::Node::iterator(this);
   for (const auto& child : children) {
-    XML::Node::iterator node = child->find_by_value(query_value);
-    if (*node) {
+    XML::Node::iterator node = child->find(callback);
+    if (*node != nullptr) {
       return node;
     }
   }
@@ -204,22 +194,66 @@ std::string XML::Document::trim(const std::string& str) {
 
   return str.substr(start_pos, end_pos - start_pos + 1);
 };
-XML::Document::iterator XML::Document::begin() {
+XML::Node::iterator XML::Document::begin() {
   return root_node->begin();
 };
-XML::Document::iterator XML::Document::end() {
+XML::Node::iterator XML::Document::end() {
   return root_node->end();
 };
-XML::Document::iterator XML::Document::find_by_tag(const std::string& tag) {
-  return root_node->find_by_tag(tag);
+XML::Node::iterator XML::Document::find(std::function<bool (Node* node)> callback) {
+  return root_node->find(callback);
 };
-XML::Document::iterator XML::Document::find_by_value(const std::string& tag) {
-  return root_node->find_by_value(tag);
+XML::Node::iterator XML::Document::find_by_tag(const std::string& tag) {
+  return root_node->find([&tag] (Node* node) {
+    return node->tag == tag;
+  });
 };
-XML::Document::iterator XML::Document::add(Node::iterator it, Node* node) {
+XML::Node::iterator XML::Document::find_by_value(const std::string& value) {
+  return root_node->find([&value] (Node* node) {
+    return node->value == value;
+  });
+};
+XML::Node::iterator XML::Document::add(XML::Node::iterator it, Node* node) {
   if (!*it) {
     throw std::runtime_error("Node does not exist");
   }
   it->add(std::unique_ptr<Node>(node));
   return XML::Node::iterator(node);
+};
+bool XML::Document::erase(Node::iterator it) {
+  if (*it == root_node.get()) {
+    return false;
+  }
+
+  auto parent_it = find([&] (Node* node) {
+    auto vec_it = std::find_if(
+      node->children.begin(),
+      node->children.end(),
+      [&](const std::unique_ptr<Node> &ptr) {
+        return ptr.get() == *it;
+      }
+    );
+
+    return vec_it != node->children.end();
+  });
+
+  if (parent_it == end()) {
+    return false;
+  }
+
+  std::move(
+    it->children.begin(),
+    it->children.end(),
+    std::back_inserter(parent_it->children)
+  );
+  auto vec_it = std::find_if(
+    parent_it->children.begin(),
+    parent_it->children.end(),
+    [&](const std::unique_ptr<Node> &ptr) {
+      return ptr.get() == *it;
+    }
+  );
+  parent_it->children.erase(vec_it);
+
+  return true;
 };
