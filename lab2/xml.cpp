@@ -50,6 +50,17 @@ XML::Node::iterator XML::Node::find_by_tag(const std::string& query_tag) {
   }
   return XML::Node::iterator(nullptr);
 };
+XML::Node::iterator XML::Node::find_by_value(const std::string& query_value) {
+  if (value == query_value)
+    return XML::Node::iterator(this);
+  for (const auto& child : children) {
+    XML::Node::iterator node = child->find_by_value(query_value);
+    if (*node) {
+      return node;
+    }
+  }
+  return XML::Node::iterator(nullptr);
+};
 
 XML::Node::iterator::iterator(Node* node) {
   if (node) {
@@ -201,4 +212,7 @@ XML::Document::iterator XML::Document::end() {
 };
 XML::Document::iterator XML::Document::find_by_tag(const std::string& tag) {
   return root_node->find_by_tag(tag);
+};
+XML::Document::iterator XML::Document::find_by_value(const std::string& tag) {
+  return root_node->find_by_value(tag);
 };

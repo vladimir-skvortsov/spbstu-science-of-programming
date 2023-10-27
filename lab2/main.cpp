@@ -19,8 +19,11 @@ int main() {
 
   std::cout << std::endl;
 
-  XML::Document::iterator it = document.find_by_tag("city");
-  std::cout << "The city is " << it->value << std::endl;
+  XML::Document::iterator it1 = document.find_by_tag("city");
+  std::cout << "The city is " << it1->value << std::endl;
+
+  XML::Document::iterator it2 = document.find_by_value("Male");
+  std::cout << "Gender is contained inside of " << it2->tag << " tag" << std::endl;
 
   return 0;
 };
