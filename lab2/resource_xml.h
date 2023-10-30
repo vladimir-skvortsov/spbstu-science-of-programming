@@ -11,6 +11,14 @@ class Resource_XML {
   public:
     static std::unique_ptr<Resource_XML> create(const std::string& path);
 
+    using iterator = XML::Node::iterator;
+
+    void parse(const std::string& xml);
+    void load(const std::string& path);
+    void save(const std::string& path);
+    void print();
+    void for_each(std::function<void(const XML::Node&)> callback);
+
     XML::Node::iterator begin();
     XML::Node::iterator end();
     XML::Node::iterator find(std::function<bool(XML::Node *node)> callback);

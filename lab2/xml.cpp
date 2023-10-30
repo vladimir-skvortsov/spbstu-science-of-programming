@@ -99,7 +99,7 @@ XML::Node::iterator XML::Node::end() {
 
 XML::Document::Document() : root_node(nullptr) {};
 XML::Document::Document(const std::string& path) : root_node(nullptr) {
-  read_file(path);
+  load(path);
 };
 void XML::Document::parse(const std::string& xml) {
   int pos = 0;

@@ -8,39 +8,38 @@
 #include "resource_xml.h"
 
 int main() {
-  XML::Document document = XML::Document();
+  std::unique_ptr<Resource_XML> resource = Resource_XML::create("./example.xml");
 
-  // Test XML parser
-  document.load("./example.xml");
-  document.print();
+  // // Test XML parser
+  resource->print();
 
   // Test iterator
-  for (XML::Document::iterator it = document.begin(); it != document.end(); ++it) {
+  for (Resource_XML::iterator it = resource->begin(); it != resource->end(); ++it) {
     std::cout << "tag: " << it->tag << ", value: " << it->value << std::endl;
   }
 
   std::cout << std::endl;
 
   // Test find methods
-  XML::Document::iterator it1 = document.find_by_tag("city");
+  Resource_XML::iterator it1 = resource->find_by_tag("city");
   std::cout << "The city is " << it1->value << std::endl;
 
   std::cout << std::endl;
 
-  XML::Document::iterator it2 = document.find_by_value("Male");
+  Resource_XML::iterator it2 = resource->find_by_value("Male");
   std::cout << "Gender is contained inside of " << it2->tag << " tag" << std::endl;
 
   // Test add method
   XML::Node* favorite_musician_node = new XML::Node("favorite-musician", "Kizaru");
-  XML::Document::iterator it3 = document.find_by_tag("person");
-  document.add(it3, favorite_musician_node);
+  Resource_XML::iterator it3 = resource->find_by_tag("person");
+  resource->add(it3, favorite_musician_node);
 
   // Test erase method
-  XML::Document::iterator it4 = document.find_by_tag("contact");
-  document.erase(it4);
+  Resource_XML::iterator it4 = resource->find_by_tag("contact");
+  resource->erase(it4);
 
   // Write new file
-  document.save("./output.xml");
+  resource->save("./output.xml");
 
   return 0;
 };

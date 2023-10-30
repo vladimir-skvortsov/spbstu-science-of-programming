@@ -58,7 +58,6 @@ namespace XML {
       Document(const std::string& path);
 
       void parse(const std::string& xml);
-
       void load(const std::string& path);
       void save(const std::string& path);
       void print();

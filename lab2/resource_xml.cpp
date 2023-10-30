@@ -3,8 +3,21 @@
 std::unique_ptr<Resource_XML> Resource_XML::create(const std::string& path){
   return std::unique_ptr<Resource_XML>(new Resource_XML(path));
 };
-Resource_XML::Resource_XML(const std::string& path) {
-  document = std::make_unique<XML::Document>(path);
+Resource_XML::Resource_XML(const std::string& path): document(std::make_unique<XML::Document>(path)) {};
+void Resource_XML::parse(const std::string &xml) {
+  return document->parse(xml);
+};
+void Resource_XML::load(const std::string &path) {
+  return document->load(path);
+};
+void Resource_XML::save(const std::string &path) {
+  return document->save(path);
+};
+void Resource_XML::print() {
+  return document->print();
+};
+void Resource_XML::for_each(std::function<void (const XML::Node&)> callback) {
+  return document->for_each(callback);
 };
 XML::Node::iterator Resource_XML::begin() {
   return document->begin();
