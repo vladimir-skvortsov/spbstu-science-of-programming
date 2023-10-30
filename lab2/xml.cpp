@@ -57,10 +57,10 @@ XML::Node::iterator::iterator(Node* node) {
     nodes = node->get_descendants();
     nodes.insert(nodes.begin(), node);
   }
-  it = nodes.begin();
+  cur_node_index = 0;
 };
 XML::Node::iterator& XML::Node::iterator::operator ++ () {
-  it++;
+  *this += 1;
   return *this;
 };
 XML::Node::iterator XML::Node::iterator::operator ++ (int) {
@@ -69,26 +69,26 @@ XML::Node::iterator XML::Node::iterator::operator ++ (int) {
   return temp;
 };
 XML::Node::iterator& XML::Node::iterator::operator += (int n) {
-  it += n;
+  cur_node_index += n;
+  if (cur_node_index > nodes.size()) {
+    cur_node_index = nodes.size();
+  }
   return *this;
 };
 bool XML::Node::iterator::operator == (const iterator& other) const {
-  return *it == *other;
+  return **this == *other;
 };
 bool XML::Node::iterator::operator != (const iterator& other) const {
   return !(*this == other);
 };
 XML::Node* XML::Node::iterator::operator * () const {
-  if (nodes.empty() || it == nodes.end()) {
+  if (nodes.empty() || cur_node_index == nodes.size()) {
     return nullptr;
   }
-  return *it;
+  return nodes[cur_node_index];
 };
 XML::Node* XML::Node::iterator::operator -> () const {
-  if (it == nodes.end()) {
-    return nullptr;
-  }
-  return *it;
+  return **this;
 };
 XML::Node::iterator XML::Node::begin() {
   return XML::Node::iterator(this);

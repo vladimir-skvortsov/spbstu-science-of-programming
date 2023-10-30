@@ -42,7 +42,7 @@ namespace XML {
 
         private:
           std::vector<Node*> nodes;
-          std::vector<Node*>::iterator it;
+          int cur_node_index;
       };
 
       iterator begin();
