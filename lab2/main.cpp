@@ -14,7 +14,7 @@ int main() {
   resource->print();
 
   // Test iterator
-  for (Resource_XML::iterator it = resource->begin(); it != resource->end(); ++it) {
+  for (Resource_XML::iterator it = resource->begin(); it != resource->end(); it += 1) {
     std::cout << "tag: " << it->tag << ", value: " << it->value << std::endl;
   }
 
