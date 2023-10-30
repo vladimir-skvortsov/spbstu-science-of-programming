@@ -56,6 +56,7 @@ namespace XML {
     public:
       Document();
       Document(const std::string& path);
+      ~Document() = default;
 
       void parse(const std::string& xml);
       void load(const std::string& path);
