@@ -168,31 +168,13 @@ std::string XML::Document::stringify() {
   return root_node->stringify();
 };
 std::string XML::Document::trim(const std::string& str) {
-  std::string result = "";
-  int start_pos = 0;
-  int end_pos = str.length() - 1;
-
-
-  for (; start_pos < str.length(); start_pos += 1) {
-    char ch = str[start_pos];
-
-    if (isspace(ch)) {
-      continue;
-    } else {
-      break;
-    }
-  };
-  for (; end_pos >= 0; end_pos -= 1) {
-    char ch = str[end_pos];
-
-    if (isspace(ch)) {
-      continue;
-    } else {
-      break;
-    }
-  };
-
-  return str.substr(start_pos, end_pos - start_pos + 1);
+  auto front = std::find_if_not(str.begin(), str.end(), [](int c){
+    return std::isspace(c);
+  });
+  auto back = std::find_if_not(str.rbegin(), str.rend(), [](int c){
+    return std::isspace(c);
+  }).base();
+  return (back <= front ? std::string() : std::string(front, back));
 };
 XML::Node::iterator XML::Document::begin() {
   return root_node->begin();
