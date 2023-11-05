@@ -128,6 +128,9 @@ std::unique_ptr<XML::Node> XML::Document::parse_node(const std::string& xml, int
   std::string next_tag = get_next_tag(xml, pos);
   while (next_tag != ("/" + tag) && pos < xml.size()) {
     pos -= next_tag.size() + 2;
+    if (pos < 0) {
+      throw std::runtime_error("Invalid XML");
+    }
     node->add(parse_node(xml, pos));
     next_tag = get_next_tag(xml, pos);
   }
