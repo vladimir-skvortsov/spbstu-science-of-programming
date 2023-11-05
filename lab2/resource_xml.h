@@ -9,6 +9,7 @@
 
 class Resource_XML {
   public:
+    static std::unique_ptr<Resource_XML> create();
     static std::unique_ptr<Resource_XML> create(const std::string& path);
 
     using iterator = XML::Node::iterator;
@@ -30,5 +31,5 @@ class Resource_XML {
   private:
     std::unique_ptr<XML::Document> document;
 
-    Resource_XML(const std::string &path);
+    Resource_XML();
 };
