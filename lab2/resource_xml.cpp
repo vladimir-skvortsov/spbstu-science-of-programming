@@ -21,7 +21,7 @@ void Resource_XML::save(const std::string &path) {
 void Resource_XML::print() {
   return document->print();
 };
-void Resource_XML::for_each(std::function<void (const XML::Node&)> callback) {
+void Resource_XML::for_each(std::function<void (const XML::Node*)> callback) {
   return document->for_each(callback);
 };
 XML::Node::iterator Resource_XML::begin() {

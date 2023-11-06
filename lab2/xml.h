@@ -19,7 +19,7 @@ namespace XML {
 
       void add(std::unique_ptr<Node> child);
       std::string stringify(const int depth);
-      void for_each(std::function<void(const Node&)> callback);
+      void for_each(std::function<void(const Node*)> callback);
       std::vector<Node*> get_descendants();
       std::unique_ptr<Node> clone() const;
 
@@ -65,7 +65,7 @@ namespace XML {
       void load(const std::string& path);
       void save(const std::string& path);
       void print();
-      void for_each(std::function<void(const Node&)> callback);
+      void for_each(std::function<void(const Node*)> callback);
 
       using iterator = Node::iterator;
       Node::iterator begin();

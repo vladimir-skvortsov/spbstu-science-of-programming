@@ -18,7 +18,7 @@ class Resource_XML {
     void load(const std::string& path);
     void save(const std::string& path);
     void print();
-    void for_each(std::function<void(const XML::Node&)> callback);
+    void for_each(std::function<void(const XML::Node*)> callback);
 
     XML::Node::iterator begin();
     XML::Node::iterator end();

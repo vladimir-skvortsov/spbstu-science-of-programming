@@ -22,8 +22,8 @@ std::string XML::Node::stringify(const int depth = 0) {
 
   return result;
 };
-void XML::Node::for_each(std::function<void(const Node&)> callback) {
-  callback(*this);
+void XML::Node::for_each(std::function<void(const Node*)> callback) {
+  callback(this);
   for (const auto& child : children) {
     child->for_each(callback);
   };
@@ -126,10 +126,17 @@ void XML::Document::print() {
   std::string xml = stringify();
   std::cout << xml << std::endl;
 };
-void XML::Document::for_each(std::function<void(const Node&)> callback) {
+void XML::Document::for_each(std::function<void(const Node*)> callback) {
+  if (!root_node)
+    return;
+
+  // Create a backup for strong exception guarantee
+  std::unique_ptr<Node> backup = root_node->clone();
+
   try {
     root_node->for_each(callback);
   } catch (...) {
+    root_node = std::move(backup);
     throw;
   }
 };
