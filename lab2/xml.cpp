@@ -39,6 +39,15 @@ std::vector<XML::Node*> XML::Node::get_descendants() {
 
   return descendants;
 };
+std::unique_ptr<XML::Node> XML::Node::clone() const {
+  std::unique_ptr<XML::Node> copy = std::make_unique<Node>(tag, value);
+
+  for (const auto& child : children) {
+    copy->children.push_back(child->clone());
+  }
+
+  return copy;
+};
 XML::Node::iterator XML::Node::find(std::function<bool (Node* node)> callback) {
   if (callback(this)) {
     return XML::Node::iterator(this);
@@ -118,7 +127,11 @@ void XML::Document::print() {
   std::cout << xml << std::endl;
 };
 void XML::Document::for_each(std::function<void(const Node&)> callback) {
-  root_node->for_each(callback);
+  try {
+    root_node->for_each(callback);
+  } catch (...) {
+    throw;
+  }
 };
 std::unique_ptr<XML::Node> XML::Document::parse_node(const std::string& xml, int& pos) {
   std::string tag = get_next_tag(xml, pos);

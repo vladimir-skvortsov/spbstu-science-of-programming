@@ -21,6 +21,7 @@ namespace XML {
       std::string stringify(const int depth);
       void for_each(std::function<void(const Node&)> callback);
       std::vector<Node*> get_descendants();
+      std::unique_ptr<Node> clone() const;
 
       class iterator {
         public:
@@ -50,6 +51,8 @@ namespace XML {
       iterator find(std::function<bool (Node* node)> callback);
       iterator find_by_tag(const std::string &tag);
       iterator find_by_value(const std::string &value);
+
+      ~Node() noexcept = default;
   };
 
   class Document {
