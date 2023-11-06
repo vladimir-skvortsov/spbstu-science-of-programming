@@ -119,10 +119,16 @@ void XML::Document::load(const std::string& path) {
   parse(xml);
 };
 void XML::Document::save(const std::string& path) {
+  if (!root_node) {
+    throw std::runtime_error("XML tree is not loaded");
+  }
   std::string xml = stringify();
   write_file(path, xml);
 };
 void XML::Document::print() {
+  if (!root_node) {
+    throw std::runtime_error("XML tree is not loaded");
+  }
   std::string xml = stringify();
   std::cout << xml << std::endl;
 };
@@ -188,6 +194,9 @@ void XML::Document::write_file(const std::string& path, const std::string& conte
   file << content;
 };
 std::string XML::Document::stringify() {
+  if (!root_node) {
+    throw std::runtime_error("XML tree is not loaded");
+  }
   return root_node->stringify();
 };
 std::string XML::Document::trim(const std::string& str) {
@@ -206,19 +215,31 @@ XML::Node::iterator XML::Document::end() {
   return root_node->end();
 };
 XML::Node::iterator XML::Document::find(std::function<bool (Node* node)> callback) {
+  if (!root_node) {
+    return end();
+  }
   return root_node->find(callback);
 };
 XML::Node::iterator XML::Document::find_by_tag(const std::string& tag) {
+  if (!root_node) {
+    return end();
+  }
   return root_node->find([&tag] (Node* node) {
     return node->tag == tag;
   });
 };
 XML::Node::iterator XML::Document::find_by_value(const std::string& value) {
+  if (!root_node) {
+    return end();
+  }
   return root_node->find([&value] (Node* node) {
     return node->value == value;
   });
 };
 XML::Node::iterator XML::Document::add(XML::Node::iterator it, Node* node) {
+  if (!root_node) {
+    throw std::runtime_error("XML tree is not loaded");
+  }
   if (!*it) {
     throw std::runtime_error("Node does not exist");
   }
@@ -226,6 +247,9 @@ XML::Node::iterator XML::Document::add(XML::Node::iterator it, Node* node) {
   return XML::Node::iterator(node);
 };
 bool XML::Document::erase(Node::iterator it) {
+  if (!root_node) {
+    return false;
+  }
   if (*it == root_node.get()) {
     return false;
   }
