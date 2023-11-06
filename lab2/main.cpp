@@ -10,7 +10,7 @@
 int main() {
   std::unique_ptr<Resource_XML> resource = Resource_XML::create("./example.xml");
 
-  // // Test XML parser
+  // Test XML parser
   resource->print();
 
   // Test iterator
