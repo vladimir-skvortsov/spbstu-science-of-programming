@@ -25,6 +25,7 @@ class Wrapper {
 
   public:
     Wrapper(ClassType* instance, MethodType method, std::unordered_map<std::string, int> args_map): instance(instance), method(method) {
+      // Translate an unordered map of arguments into a vector of argument names
       for (const auto& pair : args_map) {
         arg_names.push_back(pair.first);
       }
