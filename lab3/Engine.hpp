@@ -22,7 +22,7 @@ class Engine {
         throw std::runtime_error("Command not found");
       }
 
-      auto func = reinterpret_cast<std::function<int(std::unordered_map<std::string, int>)>*>(&command_iterator->second);
+      auto func = &command_iterator->second;
 
       if (!func) {
         throw std::runtime_error("Could not interpret function");

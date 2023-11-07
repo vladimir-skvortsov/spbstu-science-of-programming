@@ -11,7 +11,10 @@ class Wrapper {
     using MethodType = int (ClassType::*)(Args...);
     ClassType* instance;
     MethodType method;
+    // vector of values that is set in () operator and used in call_func with
+    // variadic template
     std::vector<int> arg_values;
+    // Possible arguments and their order
     std::vector<std::string> arg_names;
 
     template<std::size_t... I>
@@ -24,7 +27,7 @@ class Wrapper {
       for (const auto& pair : args_map) {
         arg_names.push_back(pair.first);
       }
-    }
+    };
 
     int operator () (std::unordered_map<std::string, int> args_map) {
       for (const auto& arg_name : arg_names) {
