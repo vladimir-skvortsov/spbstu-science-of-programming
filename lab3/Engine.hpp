@@ -24,10 +24,6 @@ class Engine {
 
       auto func = &command_iterator->second;
 
-      if (!func) {
-        throw std::runtime_error("Could not interpret function");
-      }
-
       return (*func)(std::move(args));
     };
 };
