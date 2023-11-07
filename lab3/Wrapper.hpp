@@ -20,7 +20,7 @@ class Wrapper {
     };
 
   public:
-    Wrapper(ClassType* instance, MethodType function, std::unordered_map<std::string, int> args_map): instance(instance), method(function) {
+    Wrapper(ClassType* instance, MethodType method, std::unordered_map<std::string, int> args_map): instance(instance), method(method) {
       for (const auto& pair : args_map) {
         arg_names.push_back(pair.first);
       }
