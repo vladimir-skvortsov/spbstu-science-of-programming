@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
-#include "Wrapper.h"
-#include "Engine.h"
+#include "Wrapper.hpp"
+#include "Engine.hpp"
 
 class Subject {
   public:
