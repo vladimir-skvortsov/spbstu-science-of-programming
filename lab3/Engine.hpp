@@ -5,6 +5,7 @@
 
 class Engine {
   private:
+    // Unordered map of command names and lambdas
     std::unordered_map<std::string, std::function<int(std::unordered_map<std::string, int>)>> commands;
 
   public:
@@ -14,6 +15,7 @@ class Engine {
         throw std::runtime_error("Command " + command + "is  already registered");
       }
 
+      // Encapsulate wrapper inside of lambda to keep template
       commands[command] = [wrapper](std::unordered_map<std::string, int> args) {
         return (*wrapper)(std::move(args));
       };
