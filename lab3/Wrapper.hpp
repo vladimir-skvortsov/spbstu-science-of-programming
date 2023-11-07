@@ -19,6 +19,7 @@ class Wrapper {
 
     template<std::size_t... I>
     int call_func(std::index_sequence<I...>) {
+      // Unpack indices ang unpack values from arg_values vector
       return (instance->*method)(arg_values[I]...);
     };
 
@@ -38,6 +39,9 @@ class Wrapper {
         arg_values.push_back(args_map[arg_name]);
       }
 
+      // Call function with std::make_index_sequence, that creates
+      // sequence of indices from 0 to n - 1, that can be packed in the arguments
+      // See more details: https://habr.com/ru/companies/otus/articles/655715/
       return call_func(std::make_index_sequence<sizeof...(Args)>{});
     };
 };
