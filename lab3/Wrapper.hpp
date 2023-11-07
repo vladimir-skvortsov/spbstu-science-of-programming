@@ -27,8 +27,11 @@ class Wrapper {
     }
 
     int operator () (std::unordered_map<std::string, int> args_map) {
-      int index = 0;
       for (const auto& arg_name : arg_names) {
+        if (args_map.find(arg_name) == args_map.end()) {
+          throw std::runtime_error("Could not find argument " + arg_name);
+        }
+
         arg_values.push_back(args_map[arg_name]);
       }
 
