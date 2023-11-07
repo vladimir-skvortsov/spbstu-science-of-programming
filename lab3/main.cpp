@@ -26,7 +26,7 @@ int main() {
 
   engine.register_command(&wrapper, "command1");
 
-  std::cout << engine.execute("command1", { {"arg1", 4}, {"arg2", 5} }) << std::endl;
+  std::cout << engine.execute("command1", {{"arg1", 4}, {"arg2", 5}}) << std::endl;
 
   return 0;
 };
